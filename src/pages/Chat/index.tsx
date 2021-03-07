@@ -64,14 +64,14 @@ const Chat: React.FC = () => {
           message,
         );
 
+        if (!response) {
+          Alert.alert('Erro ao enviar a mensagem', 'Tente novamente');
+        }
+
         await apiFirebase.sendNotification(
           selectedChat.chatData.user,
           message.text,
         );
-
-        if (!response) {
-          Alert.alert('Erro ao enviar a mensagem', 'Tente novamente');
-        }
       });
     },
     [selectedChat.chatData.chatId, selectedChat.chatData.user],

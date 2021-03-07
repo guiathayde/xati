@@ -19,12 +19,14 @@ const RegisterSuccess: React.FC = () => {
 
   useEffect(() => {
     apiFirebase.getMessagingToken().then(async response => {
-      await apiFirebase.saveMessagingTokenStorage(response);
-      apiFirebase.saveDeviceDatabase(response).then(() => {
-        console.log(
-          'Token gerado, salvado no banco de dados e no AsyncStorage',
-        );
-      });
+      if (response) {
+        await apiFirebase.saveMessagingTokenStorage(response);
+        apiFirebase.saveDeviceDatabase(response).then(() => {
+          console.log(
+            'Token gerado, salvado no banco de dados e no AsyncStorage',
+          );
+        });
+      }
     });
   }, []);
 

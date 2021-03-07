@@ -134,7 +134,6 @@ export const ChatLastMessage = styled(Text)`
   margin-top: 4px;
   padding-bottom: 4px;
   max-width: 90%;
-  max-height: 20px;
 `;
 
 export const NewMessagesContainer = styled(View)`

@@ -112,16 +112,7 @@ const SearchUser: React.FC = () => {
       const verifyChat = await apiFirebase.verifyChat(selectedUser.name);
 
       if (verifyChat) {
-        const chatData = {
-          chatId: verifyChat.chatId,
-          user: {
-            _id: verifyChat.user._id,
-            name: verifyChat.user.name,
-            avatar: verifyChat.user.avatar,
-          },
-        };
-
-        navigate('Chat', { chatData });
+        navigate('Chat', verifyChat);
         return;
       }
 

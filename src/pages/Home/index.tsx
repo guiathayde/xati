@@ -79,21 +79,23 @@ const Home: React.FC = () => {
 
     if (messagingToken === null) {
       apiFirebase.getMessagingToken().then(async response => {
-        await apiFirebase.saveMessagingTokenStorage(response);
-        apiFirebase.saveDeviceDatabase(response).then(() => {
-          console.log(
-            'Token gerado, salvado no banco de dados e no AsyncStorage',
-          );
-        });
+        if (response) {
+          await apiFirebase.saveMessagingTokenStorage(response);
+          apiFirebase.saveDeviceDatabase(response).then(() => {
+            console.log(
+              'Token gerado, salvado no banco de dados e no AsyncStorage',
+            );
+          });
+        }
       });
     }
   }, []);
 
   useEffect(() => {
     if (screenIsFocused) {
-      apiFirebase.getChatsData().then(response => {
-        if (response !== undefined) {
-          setChats(response);
+      apiFirebase.getChatsData().then(chatsData => {
+        if (chatsData) {
+          setChats(chatsData);
           setLoading(false);
         }
         setLoading(false);
@@ -160,6 +162,8 @@ const Home: React.FC = () => {
           'Chat deletado',
           `O chat com ${chatDataDeleted.user.name} foi deletado.`,
         );
+      } else {
+        Alert.alert('Erro ao deletar conversa', 'Tente novamente mais tarde');
       }
     }
   }, [chatDataDeleted, chatDeleted, chats]);
@@ -185,7 +189,7 @@ const Home: React.FC = () => {
           </LoadingView>
         )}
 
-        {!chats.length && (
+        {chats.length && (
           <>
             <NoMessageText>Nenhuma conversa encontrada</NoMessageText>
 
@@ -217,7 +221,9 @@ const Home: React.FC = () => {
 
                 <ChatData>
                   <ChatName>{chat.user.name}</ChatName>
-                  <ChatLastMessage>{chat.lastMessage?.text}</ChatLastMessage>
+                  <ChatLastMessage numberOfLines={1}>
+                    {chat.lastMessage?.text}
+                  </ChatLastMessage>
                 </ChatData>
 
                 {chat.newMessages && (

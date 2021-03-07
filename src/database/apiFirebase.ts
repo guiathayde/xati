@@ -59,7 +59,7 @@ const apiFirebase = {
   findUserByName: async (name: string): Promise<UserData[] | null> => {
     const usersName = await firebase.database().ref('users').get();
 
-    if (usersName) {
+    if (usersName.exists()) {
       let usersNameFiltered = Object.values(usersName.val()).filter(item =>
         new RegExp(name, 'gim').test(item.name),
       );
@@ -124,7 +124,7 @@ const apiFirebase = {
       photoURL: imageURL,
     });
 
-    return imageURL;
+    return imageURL as string;
   },
 
   signInAuthentication: async (email: string, password: string) => {
@@ -176,11 +176,11 @@ const apiFirebase = {
           name,
         });
 
-        console.log('Perfil atualizado com sucesso');
+        console.log('Nome de perfil atualizado com sucesso');
         return true;
       })
       .catch(error => {
-        console.log('Erro ao atualizar perfil');
+        console.log('Erro ao atualizar nome de perfil');
         console.log(error);
         return false;
       });
@@ -189,7 +189,7 @@ const apiFirebase = {
   },
 
   signOutAuthentication: async () => {
-    firebase
+    await firebase
       .auth()
       .signOut()
       .then(() => console.log('Logout com sucesso!'))
@@ -315,7 +315,7 @@ const apiFirebase = {
       const chatsDataArray = Object.values(chatsData.val()) as IChat[];
 
       const updateChatsDataArray = chatsDataArray.map(async chatData => {
-        const selectedAvtar = await apiFirebase.getSelectedUserAvatar(
+        const selectedAvatar = await apiFirebase.getSelectedUserAvatar(
           chatData.user._id,
         );
 
@@ -330,7 +330,7 @@ const apiFirebase = {
           user: {
             _id: chatData.user._id,
             name: chatData.user.name,
-            avatar: selectedAvtar,
+            avatar: selectedAvatar,
           },
         };
 
@@ -392,7 +392,16 @@ const apiFirebase = {
         return item.user.name === selectedUserName;
       });
 
-      return chatsDataArrayFiltered[0];
+      const chatData = {
+        chatId: chatsDataArrayFiltered[0].chatId,
+        user: {
+          _id: chatsDataArrayFiltered[0].user._id,
+          name: chatsDataArrayFiltered[0].user.name,
+          avatar: chatsDataArrayFiltered[0].user.avatar,
+        },
+      };
+
+      return chatData;
     }
 
     return null;
