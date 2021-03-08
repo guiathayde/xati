@@ -108,8 +108,6 @@ const Profile: React.FC = () => {
       cropping: true,
     })
       .then(async image => {
-        console.log(image);
-
         const imageURL = await apiFirebase.uploadProfilePhoto(image.path);
         await apiFirebase.updateAvatarDatabase(imageURL);
 

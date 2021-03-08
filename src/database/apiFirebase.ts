@@ -58,9 +58,18 @@ const apiFirebase = {
   updateAvatarDatabase: async (imageURL: string) => {
     const currentUser = await apiFirebase.currentUser();
 
-    await firebase.database().ref(`users/${currentUser?.uid}`).update({
-      avatar: imageURL,
-    });
+    await firebase
+      .database()
+      .ref(`users/${currentUser?.uid}`)
+      .update({
+        avatar: imageURL,
+      })
+      .catch(error =>
+        console.log(
+          'Erro ao atualizar foto de perfil no banco de dados: ',
+          error,
+        ),
+      );
   },
 
   createUser: async (name: string, email: string, password: string) => {
