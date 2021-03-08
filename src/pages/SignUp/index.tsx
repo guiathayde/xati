@@ -66,10 +66,15 @@ const SignUp: React.FC = () => {
           abortEarly: false,
         });
 
-        await signUp(data);
+        const verifyCreationUser = await signUp(data);
+        if (verifyCreationUser) {
+          setLoading(false);
+          navigate('UploadProfilePhoto');
+          return;
+        }
 
         setLoading(false);
-        navigate('UploadProfilePhoto');
+        Alert.alert('Erro ao criar conta', 'Por favor tente de novo');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           console.log(err);

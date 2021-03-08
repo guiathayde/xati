@@ -73,7 +73,7 @@ const apiFirebase = {
   },
 
   createUser: async (name: string, email: string, password: string) => {
-    await firebase
+    return await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then(async () => {
@@ -92,10 +92,11 @@ const apiFirebase = {
           .ref(`users/${userDatabase._id}`)
           .set(userDatabase);
 
-        console.log('Registrado com sucesso!');
+        return true;
       })
       .catch(() => {
         console.log('Erro ao fazer cadastro');
+        return false;
       });
   },
 

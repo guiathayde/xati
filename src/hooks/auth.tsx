@@ -35,7 +35,7 @@ interface SignInCredentials {
 interface AuthContextData {
   user: User;
   loading: boolean;
-  signUp(credentialsSignUp: SignUpCredentials): Promise<void>;
+  signUp(credentialsSignUp: SignUpCredentials): Promise<boolean>;
   signUpUpdate(): void;
   signIn(credentialsSignIn: SignInCredentials): Promise<void>;
   signOut(): void;
@@ -71,12 +71,22 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   const signUp = useCallback(
     async ({ name, email, password }: SignUpCredentials) => {
-      await apiFirebase.createUser(name, email, password);
+      const verifyCreationUser = await apiFirebase.createUser(
+        name,
+        email,
+        password,
+      );
 
-      await AsyncStorage.multiSet([
-        ['@Xati:email', email],
-        ['@Xati:password', password],
-      ]);
+      if (verifyCreationUser) {
+        await AsyncStorage.multiSet([
+          ['@Xati:email', email],
+          ['@Xati:password', password],
+        ]);
+
+        return true;
+      }
+
+      return false;
     },
     [],
   );
