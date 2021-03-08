@@ -41,21 +41,6 @@ interface lastMessageData {
 }
 
 const apiFirebase = {
-  // findUserByName: async (name: string): Promise<UserData[] | null> => {
-  //   const user = await firebase
-  //     .database()
-  //     .ref('users')
-  //     .orderByChild('name')
-  //     .equalTo(name)
-  //     .once('value');
-
-  //   if (user.exists()) {
-  //     return Object.values(user.val());
-  //   }
-
-  //   return null;
-  // },
-
   findUserByName: async (name: string): Promise<UserData[] | null> => {
     const usersName = await firebase.database().ref('users').get();
 
@@ -68,21 +53,6 @@ const apiFirebase = {
     } else {
       return null;
     }
-  },
-
-  createUserDatabase: async () => {
-    const currentUser = await apiFirebase.currentUser();
-
-    const userDatabase = {
-      _id: currentUser?.uid,
-      name: currentUser?.displayName,
-      avatar: currentUser?.photoURL,
-    };
-
-    await firebase
-      .database()
-      .ref(`users/${userDatabase._id}`)
-      .set(userDatabase);
   },
 
   updateAvatarDatabase: async (imageURL: string) => {
@@ -99,7 +69,20 @@ const apiFirebase = {
       .createUserWithEmailAndPassword(email, password)
       .then(async () => {
         await apiFirebase.updateProfileName(name);
-        await apiFirebase.createUserDatabase();
+
+        const currentUser = await apiFirebase.currentUser();
+
+        const userDatabase = {
+          _id: currentUser?.uid,
+          name: currentUser?.displayName,
+          avatar: currentUser?.photoURL,
+        };
+
+        await firebase
+          .database()
+          .ref(`users/${userDatabase._id}`)
+          .set(userDatabase);
+
         console.log('Registrado com sucesso!');
       })
       .catch(() => {
