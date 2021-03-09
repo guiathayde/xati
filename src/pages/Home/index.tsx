@@ -189,7 +189,7 @@ const Home: React.FC = () => {
           </LoadingView>
         )}
 
-        {chats.length && (
+        {chats.length === 0 && (
           <>
             <NoMessageText>Nenhuma conversa encontrada</NoMessageText>
 

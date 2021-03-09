@@ -187,12 +187,12 @@ export const AuthProvider: React.FC = ({ children }) => {
         ]);
 
         setData({ user });
+      } else {
+        Alert.alert(
+          'Erro ao fazer login',
+          'Cheque suas credenciais e tente novamente',
+        );
       }
-
-      Alert.alert(
-        'Erro ao fazer login',
-        'Cheque suas credenciais e tente novamente',
-      );
     }
   }, []);
 

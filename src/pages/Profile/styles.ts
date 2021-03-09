@@ -125,7 +125,7 @@ export const ButtonText = styled(Text)`
 export const ButtonLogout = styled(RectButton)`
   width: 100%;
   display: flex;
-  margin-top: 40%;
+  margin-top: 5%;
   justify-content: center;
   align-items: center;
   background-color: #ff3737;
