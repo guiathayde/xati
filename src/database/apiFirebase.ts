@@ -142,7 +142,8 @@ const apiFirebase = {
       .then(() => {
         return true;
       })
-      .catch(() => {
+      .catch(error => {
+        console.log('Erro ao recuperar senha: ', error);
         return false;
       });
   },
