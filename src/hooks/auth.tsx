@@ -197,16 +197,20 @@ export const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    await apiFirebase.signOutAuthentication();
+    const response = await apiFirebase.signOutAuthentication();
 
-    await AsyncStorage.multiRemove([
-      '@Xati:user',
-      '@Xati:email',
-      '@Xati:password',
-      '@Xati:MessagingToken',
-    ]);
+    if (response) {
+      await AsyncStorage.multiRemove([
+        '@Xati:user',
+        '@Xati:email',
+        '@Xati:password',
+        '@Xati:MessagingToken',
+      ]);
 
-    setData({} as AuthState);
+      setData({} as AuthState);
+    } else {
+      Alert.alert('Erro ao sair', 'Tente novamente');
+    }
   }, []);
 
   const updateNameUser = useCallback(

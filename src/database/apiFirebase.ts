@@ -181,11 +181,14 @@ const apiFirebase = {
   },
 
   signOutAuthentication: async () => {
-    await firebase
+    return await firebase
       .auth()
       .signOut()
-      .then(() => console.log('Logout com sucesso!'))
-      .catch(() => console.log('Erro ao fazer logout'));
+      .then(() => true)
+      .catch(error => {
+        console.log('Erro ao fazer logout: ', error);
+        return false;
+      });
   },
 
   saveChatId: async (selectedUser: UserData, chatId: string) => {
