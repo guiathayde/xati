@@ -125,13 +125,11 @@ const apiFirebase = {
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        console.log('Login feito com sucesso');
-        return 'Login feito com sucesso';
+        return true;
       })
       .catch(error => {
-        console.log('Erro ao fazer login');
-        console.log(error);
-        return 'Erro ao fazer login';
+        console.log('Erro ao fazer login: ', error);
+        return false;
       });
 
     return signIn;

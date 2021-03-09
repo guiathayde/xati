@@ -138,8 +138,8 @@ export const AuthProvider: React.FC = ({ children }) => {
   const signIn = useCallback(async ({ email, password }) => {
     const response = await apiFirebase.signInAuthentication(email, password);
 
-    if (response === 'Login feito com sucesso') {
-      messaging()
+    if (response) {
+      await messaging()
         .getToken()
         .then(async token => {
           await apiFirebase.saveDeviceDatabase(token);
@@ -188,6 +188,11 @@ export const AuthProvider: React.FC = ({ children }) => {
 
         setData({ user });
       }
+
+      Alert.alert(
+        'Erro ao fazer login',
+        'Cheque suas credenciais e tente novamente',
+      );
     }
   }, []);
 
