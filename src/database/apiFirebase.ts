@@ -434,17 +434,17 @@ const apiFirebase = {
       });
   },
 
-  getMessagingTokenFromSelectedUser: async (selectedUserId: string) => {
-    return await firebase
-      .database()
-      .ref(`users/${selectedUserId}/device/token`)
-      .get();
-  },
-
   sendNotification: async (selectedUser: UserData, message: string) => {
-    const token = await apiFirebase.getMessagingTokenFromSelectedUser(
-      selectedUser._id,
-    );
+    const token = await firebase
+      .database()
+      .ref(`users/${selectedUser._id}/device/token`)
+      .get()
+      .catch(error =>
+        console.log(
+          'Erro ao tentar pegar token do usuario selecionado: ',
+          error,
+        ),
+      );
 
     const currentUser = await apiFirebase.currentUser();
 
