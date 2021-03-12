@@ -290,9 +290,10 @@ const apiFirebase = {
       const chatsDataArray = Object.values(chatsData.val()) as IChat[];
 
       const updateChatsDataArray = chatsDataArray.map(async chatData => {
-        const selectedAvatar = await apiFirebase.getSelectedUserAvatar(
-          chatData.user._id,
-        );
+        const selectedAvatar = await firebase
+          .storage()
+          .ref(`${chatData.user._id}`)
+          .getDownloadURL();
 
         const newMessages = await apiFirebase.getNewMessagesChatData(
           chatData.chatId,
@@ -379,10 +380,6 @@ const apiFirebase = {
     }
 
     return null;
-  },
-
-  getSelectedUserAvatar: async (selectedId: string): Promise<string> => {
-    return await firebase.storage().ref(`${selectedId}`).getDownloadURL();
   },
 
   saveLastMessage: async (
