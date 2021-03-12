@@ -401,33 +401,36 @@ const apiFirebase = {
   },
 
   getMessagingToken: async () => {
-    return await messaging()
+    await messaging()
       .getToken()
-      .then((response: string) => {
-        return response;
+      .then(async (token: string) => {
+        await AsyncStorage.setItem('@Xati:MessagingToken', token).catch(error =>
+          console.log('Erro ao salvar o messaging token no storage: ', error),
+        );
+
+        const currentUser = await apiFirebase.currentUser();
+
+        await firebase
+          .database()
+          .ref(`users/${currentUser?.uid}/device`)
+          .set({
+            brand: getBrand(),
+            model: getModel(),
+            token,
+          })
+          .catch(error => {
+            console.log(
+              'Erro ao salvar no banco de dados as informações do dispositivo: ',
+              error,
+            );
+          });
+
+        console.log(
+          'Token gerado, salvado no banco de dados e no AsyncStorage',
+        );
       })
       .catch(error => {
-        console.log(error);
-      });
-  },
-
-  saveMessagingTokenStorage: async (token: string) => {
-    await AsyncStorage.setItem('@Xati:MessagingToken', token);
-  },
-
-  saveDeviceDatabase: async (token: string) => {
-    const currentUser = await apiFirebase.currentUser();
-
-    await firebase
-      .database()
-      .ref(`users/${currentUser?.uid}/device`)
-      .set({
-        brand: getBrand(),
-        model: getModel(),
-        token,
-      })
-      .catch(error => {
-        console.log('Erro ao salvar informações do dispositivo: ', error);
+        console.log('Erro ao pegar messaging token: ', error);
       });
   },
 

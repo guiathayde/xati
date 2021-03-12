@@ -78,16 +78,7 @@ const Home: React.FC = () => {
     );
 
     if (messagingToken === null) {
-      apiFirebase.getMessagingToken().then(async response => {
-        if (response) {
-          await apiFirebase.saveMessagingTokenStorage(response);
-          apiFirebase.saveDeviceDatabase(response).then(() => {
-            console.log(
-              'Token gerado, salvado no banco de dados e no AsyncStorage',
-            );
-          });
-        }
-      });
+      apiFirebase.getMessagingToken();
     }
   }, []);
 
