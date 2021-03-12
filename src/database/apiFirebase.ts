@@ -2,7 +2,7 @@ import firebase from './database';
 import messaging from '@react-native-firebase/messaging';
 
 import { getBrand, getModel } from 'react-native-device-info';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 // import storage from './AsyncStorage';
 

@@ -8,7 +8,7 @@ import React, {
 import { Alert } from 'react-native';
 import apiFirebase from '../database/apiFirebase';
 import messaging from '@react-native-firebase/messaging';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
   _id: string;
