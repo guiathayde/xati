@@ -379,14 +379,13 @@ const apiFirebase = {
       .ref(`users/${currentUser?.uid}/chatsId`)
       .once('value');
 
-    if (chatsData.exists()) {
-      console.log('Esse chat já existe, vai abrir a conversa');
-      const chatsDataArray = Object.values(chatsData.val()) as IChat[];
+    const chatsDataArray = Object.values(chatsData.val()) as IChat[];
 
-      const chatsDataArrayFiltered = chatsDataArray.filter(item => {
-        return item.user.name === selectedUserName;
-      });
+    const chatsDataArrayFiltered = chatsDataArray.filter(item => {
+      return item.user.name === selectedUserName;
+    });
 
+    if (chatsDataArrayFiltered.length) {
       const chatData = {
         chatId: chatsDataArrayFiltered[0].chatId,
         user: {

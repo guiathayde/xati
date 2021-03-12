@@ -28,6 +28,11 @@ interface ParamsData {
       avatar: string;
     };
   };
+  selectedUser: {
+    _id: string;
+    name: string;
+    avatar?: string;
+  };
 }
 
 const Chat: React.FC = () => {
@@ -55,6 +60,13 @@ const Chat: React.FC = () => {
 
   const onSend = useCallback(
     async (newMessages = []) => {
+      if (!messages.length) {
+        await apiFirebase.saveChatId(
+          selectedChat.selectedUser,
+          selectedChat.chatData.chatId,
+        );
+      }
+
       await newMessages.forEach(async (message: IMessage) => {
         message.createdAt = new Date().getTime();
 
@@ -74,7 +86,12 @@ const Chat: React.FC = () => {
         );
       });
     },
-    [selectedChat.chatData.chatId, selectedChat.chatData.user],
+    [
+      selectedChat.chatData.chatId,
+      selectedChat.chatData.user,
+      messages.length,
+      selectedChat.selectedUser,
+    ],
   );
 
   const navigateToHome = useCallback(() => {

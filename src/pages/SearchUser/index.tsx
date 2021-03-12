@@ -125,9 +125,7 @@ const SearchUser: React.FC = () => {
         },
       };
 
-      await apiFirebase.saveChatId(selectedUser, chatData.chatId);
-
-      navigate('Chat', { chatData });
+      navigate('Chat', { chatData, selectedUser });
     },
     [user._id, navigate],
   );
