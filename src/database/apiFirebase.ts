@@ -434,15 +434,6 @@ const apiFirebase = {
       });
   },
 
-  getMessagingTokenFromDatabase: async () => {
-    const currentUser = await apiFirebase.currentUser();
-
-    return await firebase
-      .database()
-      .ref(`users/${currentUser?.uid}/device/token`)
-      .get();
-  },
-
   getMessagingTokenFromSelectedUser: async (selectedUserId: string) => {
     return await firebase
       .database()
