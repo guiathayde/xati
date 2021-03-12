@@ -227,26 +227,6 @@ const apiFirebase = {
       );
   },
 
-  deleteChatId: async (selectedUserId: string, chatId: string) => {
-    const currentUser = await apiFirebase.currentUser();
-
-    await firebase
-      .database()
-      .ref(`users/${currentUser?.uid}/chatsId/${chatId}`)
-      .remove()
-      .catch(error =>
-        console.log('Erro ao deletar o chatId do usuário: ', error),
-      );
-
-    await firebase
-      .database()
-      .ref(`users/${selectedUserId}/chatsId/${chatId}`)
-      .remove()
-      .catch(error =>
-        console.log('Erro ao deletar o chatId do usuário selecionado: ', error),
-      );
-  },
-
   createMessage: async (
     selectedUserId: string,
     chatId: string,
@@ -521,7 +501,29 @@ const apiFirebase = {
       .ref(`chats/${chatId}`)
       .remove()
       .then(async () => {
-        await apiFirebase.deleteChatId(selectedUserId, chatId);
+        const currentUser = await apiFirebase.currentUser();
+
+        await firebase
+          .database()
+          .ref(`users/${currentUser?.uid}/chatsId/${chatId}`)
+          .remove()
+          .catch(error => {
+            console.log('Erro ao deletar o chatId do usuário: ', error);
+            return false;
+          });
+
+        await firebase
+          .database()
+          .ref(`users/${selectedUserId}/chatsId/${chatId}`)
+          .remove()
+          .catch(error => {
+            console.log(
+              'Erro ao deletar o chatId do usuário selecionado: ',
+              error,
+            );
+            return false;
+          });
+
         return true;
       })
       .catch(error => {
