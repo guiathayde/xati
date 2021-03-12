@@ -341,17 +341,6 @@ const apiFirebase = {
       .remove();
   },
 
-  getChatDataByChatId: async (chatId: string) => {
-    const currentUser = await apiFirebase.currentUser();
-
-    const chatData = await firebase
-      .database()
-      .ref(`users/${currentUser?.uid}/chatsId/${chatId}`)
-      .once('value');
-
-    return Object.values(chatData.val()) as IChat[];
-  },
-
   verifyChat: async (selectedUserName: string) => {
     const currentUser = await apiFirebase.currentUser();
 
