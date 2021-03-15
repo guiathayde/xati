@@ -83,34 +83,78 @@ const storage = {
   },
 
   saveMessage: async (chatId: string, message: IMessage) => {
-    const verifyChat = await AsyncStorage.getItem(`@Xati:${chatId}`);
-
-    if (verifyChat !== null) {
-      await AsyncStorage.setItem(
-        `@Xati:${chatId}`,
-        JSON.stringify(message),
-      ).catch(error => {
-        console.log('Erro ao salvar primeira mensagem: ', error);
-      });
-    }
-
-    await AsyncStorage.mergeItem(
-      `@Xati:${chatId}`,
+    await AsyncStorage.setItem(
+      `@Xati:${chatId}:${message._id}`,
       JSON.stringify(message),
-    ).catch(error => {
-      console.log('Erro em salvar mensagem no AsyncStorage: ', error);
-    });
+    );
+
+    await storage.saveLastMessage(chatId, message);
+  },
+
+  saveLastMessage: async (chatId: string, message: IMessage) => {
+    const lastMessage = await AsyncStorage.getItem(
+      `@Xati:lastMessage:${chatId}`,
+    );
+
+    if (lastMessage) {
+      await AsyncStorage.mergeItem(
+        `@Xati:lastMessage:${chatId}`,
+        JSON.stringify(message),
+      );
+    } else {
+      await AsyncStorage.setItem(
+        `@Xati:lastMessage:${chatId}`,
+        JSON.stringify(message),
+      );
+    }
   },
 
   getMessages: async (chatId: string) => {
-    return await AsyncStorage.getItem(`@Xati:${chatId}`)
-      .then(response => {
-        if (response) {
-          return JSON.parse(response) as IMessage[];
+    const allKeysStorage = await AsyncStorage.getAllKeys();
+    const allMessagesKeys = allKeysStorage.filter(key =>
+      new RegExp(chatId, 'gim').test(key),
+    );
+
+    const messagesString = await AsyncStorage.multiGet(
+      allMessagesKeys,
+    ).catch(error =>
+      console.log('Erro ao pegar as mensagens no storage: ', error),
+    );
+
+    if (messagesString) {
+      const messagesArray = messagesString.map(messageData => {
+        if (messageData[1]) {
+          return JSON.parse(messageData[1]);
         }
+      });
+
+      const messagesSorted = messagesArray.sort((a, b) => {
+        return a.createdAt - b.createdAt;
+      });
+
+      const messages = messagesSorted.reduce((accumulator, current) => {
+        if (
+          !accumulator.some((message: IMessage) => message._id === current._id)
+        ) {
+          accumulator.push(current);
+        }
+        return accumulator;
+      }, []);
+
+      return messages as IMessage[];
+    }
+  },
+
+  getLastMessage: async (chatId: string) => {
+    return await AsyncStorage.getItem(`@Xati:lastMessage:${chatId}`)
+      .then(message => {
+        if (message) {
+          return JSON.parse(message) as IMessage;
+        }
+        return undefined;
       })
       .catch(error => {
-        console.log('Erro ao pegar as mensagens no AsyncStorage: ', error);
+        console.log('Erro ao pegar ultima mensagem no AsyncStorage: ', error);
         return undefined;
       });
   },

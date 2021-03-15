@@ -12,7 +12,11 @@ import AppProvider from './hooks';
 import Routes from './routes';
 
 const App: React.FC = () => {
-  LogBox.ignoreLogs(['Setting a timer for a long period of time,']);
+  LogBox.ignoreLogs([
+    'Setting a timer for a long period of time,',
+    'Warning: AsyncStorage',
+    'Warning: AsyncStorage has been extracted from',
+  ]);
 
   useEffect(() => {
     SplashScreen.hide();

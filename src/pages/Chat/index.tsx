@@ -8,6 +8,7 @@ import customtInputToolbar from '../../components/CustomStylesGiftedChat/customI
 import customSend from '../../components/CustomStylesGiftedChat/customSend';
 import apiFirebase from '../../database/apiFirebase';
 import { useAuth } from '../../hooks/auth';
+import storage from '../../database/storage';
 
 import {
   Container,
@@ -46,16 +47,35 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
 
   useEffect(() => {
-    apiFirebase.updateMessages(
-      selectedChat.chatData.chatId,
-      (message: IMessage[]) => {
-        apiFirebase.removeNewMessagesChatData(selectedChat.chatData.chatId);
+    const updateMessages = async () => {
+      const messagesStorage = await storage.getMessages(
+        selectedChat.chatData.chatId,
+      );
 
-        setMessages(previousMessages =>
-          GiftedChat.append(previousMessages, message),
-        );
-      },
-    );
+      if (messagesStorage) {
+        messagesStorage.forEach(message => {
+          setMessages(previousMessages =>
+            GiftedChat.append(previousMessages, [message]),
+          );
+        });
+      }
+
+      await apiFirebase.updateMessages(
+        selectedChat.chatData.chatId,
+        async (message: IMessage[]) => {
+          if (message) {
+            await apiFirebase.removeNewMessagesChatData(
+              selectedChat.chatData.chatId,
+            );
+
+            setMessages(previousMessages =>
+              GiftedChat.append(previousMessages, message),
+            );
+          }
+        },
+      );
+    };
+    updateMessages();
   }, [selectedChat.chatData.chatId]);
 
   const onSend = useCallback(
@@ -65,6 +85,8 @@ const Chat: React.FC = () => {
           selectedChat.selectedUser,
           selectedChat.chatData.chatId,
         );
+
+        await storage.saveChatData(selectedChat.chatData);
       }
 
       await newMessages.forEach(async (message: IMessage) => {
@@ -78,6 +100,7 @@ const Chat: React.FC = () => {
 
         if (!response) {
           Alert.alert('Erro ao enviar a mensagem', 'Tente novamente');
+          return;
         }
 
         await apiFirebase.sendNotification(
@@ -86,15 +109,11 @@ const Chat: React.FC = () => {
         );
       });
     },
-    [
-      selectedChat.chatData.chatId,
-      selectedChat.chatData.user,
-      messages.length,
-      selectedChat.selectedUser,
-    ],
+    [messages.length, selectedChat.selectedUser, selectedChat.chatData],
   );
 
   const navigateToHome = useCallback(() => {
+    setMessages([]);
     navigate('Home');
   }, [navigate]);
 

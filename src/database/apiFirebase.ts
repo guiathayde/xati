@@ -4,7 +4,7 @@ import messaging from '@react-native-firebase/messaging';
 import { getBrand, getModel } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-// import storage from './AsyncStorage';
+import storage from './storage';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IMessage } from 'react-native-gifted-chat';
@@ -239,7 +239,6 @@ const apiFirebase = {
       .ref(`chats/${chatId}`)
       .push(message)
       .then(async () => {
-        // await storage.saveMessage(chatId, message);
         await firebase
           .database()
           .ref(`users/${selectedUserId}/new-messages/${chatId}`)
@@ -251,31 +250,44 @@ const apiFirebase = {
       });
   },
 
-  loadLastMessages: async (chatId: string, callback: Function) => {
-    await firebase
-      .database()
-      .ref(`chats/${chatId}`)
-      .limitToLast(100)
-      .once('value', snapshot => {
-        const { _id, createdAt, text, user } = snapshot.val();
-
-        const message = { _id, createdAt, text, user };
-
-        callback(message);
-      });
-  },
-
   updateMessages: async (chatId: string, callback: Function) => {
-    await firebase
-      .database()
-      .ref(`chats/${chatId}`)
-      .on('child_added', snapshot => {
-        const { _id, createdAt, text, user } = snapshot.val();
+    const lastMessage = await storage.getLastMessage(chatId);
 
-        const message = { _id, createdAt, text, user };
+    if (lastMessage?._id) {
+      await firebase
+        .database()
+        .ref(`chats/${chatId}`)
+        .orderByChild('createdAt')
+        .startAfter(Number(lastMessage.createdAt))
+        .on('value', async snapshot => {
+          if (snapshot.exists()) {
+            console.log('Firebase depois storage', snapshot.val());
+            const { _id, createdAt, text, user } = snapshot.val();
 
-        callback(message);
-      });
+            const message = { _id, createdAt, text, user };
+
+            await storage.saveMessage(chatId, message);
+
+            callback(message);
+          } else {
+            return;
+          }
+        });
+    } else {
+      await firebase
+        .database()
+        .ref(`chats/${chatId}`)
+        .on('child_added', async snapshot => {
+          console.log('Firebase sem storage', snapshot.val());
+          const { _id, createdAt, text, user } = snapshot.val();
+
+          const message = { _id, createdAt, text, user };
+
+          await storage.saveMessage(chatId, message);
+
+          callback(message);
+        });
+    }
   },
 
   getChatsData: async (): Promise<IChat[] | undefined> => {

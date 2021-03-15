@@ -92,17 +92,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   );
 
   const signUpUpdate = useCallback(async () => {
-    messaging()
-      .getToken()
-      .then(async token => {
-        await apiFirebase.saveDeviceDatabase(token);
-      })
-      .catch(error => {
-        console.log(
-          'Erro ao salvar no banco de dados o token de notificação: ',
-          error,
-        );
-      });
+    await apiFirebase.getMessagingToken();
 
     const currentUser = await apiFirebase.currentUser();
 
@@ -200,12 +190,13 @@ export const AuthProvider: React.FC = ({ children }) => {
     const response = await apiFirebase.signOutAuthentication();
 
     if (response) {
-      await AsyncStorage.multiRemove([
-        '@Xati:user',
-        '@Xati:email',
-        '@Xati:password',
-        '@Xati:MessagingToken',
-      ]);
+      await AsyncStorage.clear();
+      // await AsyncStorage.multiRemove([
+      //   '@Xati:user',
+      //   '@Xati:email',
+      //   '@Xati:password',
+      //   '@Xati:MessagingToken',
+      // ]);
 
       setData({} as AuthState);
     } else {

@@ -12,7 +12,6 @@
   "dependencies": {
     "@notifee/react-native": "^1.1.0",
     "@react-native-async-storage/async-storage": "^1.14.1",
-    "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-firebase/app": "^10.5.0",
     "@react-native-firebase/messaging": "^10.5.1",

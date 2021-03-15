@@ -44,7 +44,7 @@ interface ProfileFormData {
 }
 
 const Profile: React.FC = () => {
-  const { goBack } = useNavigation();
+  const { goBack, navigate } = useNavigation();
   const { user, signOut, updateNameUser, updateAvatarUser } = useAuth();
 
   const [profilePicture, setProfilePicture] = useState(user.avatar);
@@ -180,8 +180,9 @@ const Profile: React.FC = () => {
 
             <Button
               onPress={() => {
-                Keyboard.dismiss();
-                formRef.current?.submitForm();
+                // Keyboard.dismiss();
+                // formRef.current?.submitForm();
+                navigate('Test');
               }}
             >
               <ButtonText>Salvar</ButtonText>
