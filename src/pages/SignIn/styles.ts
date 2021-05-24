@@ -19,11 +19,9 @@ export const Container = styled(View)`
   background: #f7f7f9;
 `;
 export const BackButton = styled(RectButton)`
-  /* position: absolute;
-  top: 64px;
-  left: 16px; */
-  margin-top: ${statusBarHeight + 24}px;
+  margin-top: ${statusBarHeight ? statusBarHeight + 24 : 32}px;
   margin-left: 20px;
+  padding: 4px;
   display: flex;
   flex-direction: row;
   align-items: center;

@@ -39,7 +39,7 @@ const SignUp: React.FC = () => {
 
   const { signUp } = useAuth();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const formRef = useRef<FormHandles>(null);
   const emailInputRef = useRef<TextInput>(null);
@@ -66,8 +66,7 @@ const SignUp: React.FC = () => {
           abortEarly: false,
         });
 
-        const verifyCreationUser = await signUp(data);
-        if (verifyCreationUser) {
+        if (await signUp(data)) {
           setLoading(false);
           navigate('UploadProfilePhoto');
           return;
@@ -77,7 +76,7 @@ const SignUp: React.FC = () => {
         Alert.alert('Erro ao criar conta', 'Por favor tente de novo');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
-          console.log(err);
+          console.log(err.message);
           setLoading(false);
           Alert.alert('Erro ao criar usuário', 'Tente novamente.');
           return;

@@ -71,7 +71,7 @@ const SignIn: React.FC = () => {
         setLoading(false);
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
-          console.log(err);
+          console.log(err.message);
 
           Alert.alert(
             'Erro na autenticação',

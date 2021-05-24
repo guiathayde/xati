@@ -21,8 +21,9 @@ export const Container = styled(View)`
 `;
 
 export const BackButton = styled(RectButton)`
-  margin-top: ${statusBarHeight + 24}px;
+  margin-top: ${statusBarHeight ? statusBarHeight + 24 : 32}px;
   margin-left: 20px;
+  padding: 4px;
   display: flex;
   align-self: baseline;
   flex-direction: row;
