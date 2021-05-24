@@ -5,6 +5,7 @@ import { Form } from '@unform/mobile';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import { v4 as uuidv4 } from 'uuid';
 import apiFirebase from '../../database/apiFirebase';
 
 import Input from '../../components/Input';
@@ -117,7 +118,7 @@ const SearchUser: React.FC = () => {
       }
 
       const chatData = {
-        chatId: new Date().getTime().toString(),
+        chatId: uuidv4(),
         user: {
           _id: selectedUser._id,
           name: selectedUser.name,
