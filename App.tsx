@@ -1,26 +1,13 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+
+import { Routes } from './src/routes';
 
 const App = () => {
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#d2d2d2',
-      }}
-    >
-      <Text
-        style={{
-          color: '#243443',
-          fontFamily: 'Inter-Medium',
-          fontSize: 64,
-        }}
-      >
-        Xati.
-      </Text>
-    </View>
+    <NavigationContainer>
+      <Routes />
+    </NavigationContainer>
   );
 };
 
