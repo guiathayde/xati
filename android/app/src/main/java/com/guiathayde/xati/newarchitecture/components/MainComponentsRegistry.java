@@ -1,4 +1,4 @@
-package com.xati.newarchitecture.components;
+package com.guiathayde.xati.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

@@ -1,4 +1,4 @@
-package com.xati.newarchitecture;
+package com.guiathayde.xati.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.xati.BuildConfig;
-import com.xati.newarchitecture.components.MainComponentsRegistry;
-import com.xati.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.guiathayde.xati.BuildConfig;
+import com.guiathayde.xati.newarchitecture.components.MainComponentsRegistry;
+import com.guiathayde.xati.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
