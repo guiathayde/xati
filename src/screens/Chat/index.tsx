@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import 'dayjs/locale/pt-br';
+import auth from '@react-native-firebase/auth';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -12,14 +13,20 @@ import { Container } from './styles';
 
 import SendIcon from '../../assets/chat/ic_send.png';
 
+type User = {
+  uid: string;
+  name: string;
+  avatarUrl: string;
+};
+
 export const Chat = () => {
   const { colors } = useTheme();
+
+  const [user, setUser] = useState<User>();
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [textMessage, setTextMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
-  const title = 'Annette Black';
 
   const onSend = useCallback(() => {
     const newMessage: IMessage = {
@@ -28,8 +35,8 @@ export const Chat = () => {
       createdAt: new Date(),
       user: {
         _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
+        name: user?.name,
+        avatar: user?.avatarUrl,
       },
     };
 
@@ -41,6 +48,16 @@ export const Chat = () => {
   }, [textMessage]);
 
   useEffect(() => {
+    const userData = auth().currentUser;
+
+    if (userData) {
+      setUser({
+        uid: userData.uid,
+        name: userData.displayName ? userData.displayName : '',
+        avatarUrl: userData.photoURL ? userData.photoURL : '',
+      });
+    }
+
     setMessages([
       {
         _id: 1,
@@ -66,9 +83,11 @@ export const Chat = () => {
   return (
     <Container backgroundColor={colors.appBackground}>
       <Header
-        title={title}
-        translateXTitle={-1 * (title.length * 4.5)}
-        imageUrl="https://source.unsplash.com/XAo09LtQiAQ/300x300"
+        title={user?.name}
+        translateXTitle={
+          -1 * ((user?.name.length ? user?.name.length : 0) * 4.5)
+        }
+        imageUrl={user?.avatarUrl}
       />
 
       <View style={{ flex: 1, width: '100%', marginBottom: 20 }}>
@@ -76,8 +95,8 @@ export const Chat = () => {
           messages={messages}
           user={{
             _id: 1,
-            name: title,
-            avatar: 'https://source.unsplash.com/XAo09LtQiAQ/300x300',
+            name: user?.name,
+            avatar: user?.avatarUrl,
           }}
           isTyping={isTyping}
           locale="pt-br"

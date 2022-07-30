@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -20,15 +21,35 @@ import {
 import FloatingButtonIcon from '../../assets/home/ic_floating_button.png';
 import ArrowRightIcon from '../../assets/home/ic_right_arrow.png';
 
+type User = {
+  uid: string;
+  name: string;
+  avatarUrl: string;
+};
+
 export const Home = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
+
+  const [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    const userData = auth().currentUser;
+
+    if (userData) {
+      setUser({
+        uid: userData.uid,
+        name: userData.displayName ? userData.displayName : '',
+        avatarUrl: userData.photoURL ? userData.photoURL : '',
+      });
+    }
+  }, []);
 
   return (
     <Container backgroundColor={colors.appBackground}>
       <Profile onPress={() => navigation.navigate('Profile')}>
         <ProfilePhoto
-          source={{ uri: 'https://source.unsplash.com/XAo09LtQiAQ/300x300' }}
+          source={{ uri: user?.avatarUrl }}
         />
       </Profile>
 

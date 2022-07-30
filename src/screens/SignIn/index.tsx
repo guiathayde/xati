@@ -43,8 +43,8 @@ export const SignIn = () => {
       <SignInButton
         backgroundColor={colors.signInButtonBackground}
         onPress={() =>
-          onGoogleButtonPress().then(() =>
-            console.log('Signed in with Google!'),
+          onGoogleButtonPress().catch(error =>
+            console.log('Error signing in with Google', error),
           )
         }
       >
