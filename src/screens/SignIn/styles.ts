@@ -16,7 +16,7 @@ export const SignInButton = styled.TouchableOpacity<SignInButtonProps>`
   padding: 16px;
 
   background-color: ${props => props.backgroundColor};
-  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  box-shadow: 0 3px 4px rgb(0 0 0 / 0.2);
   border-radius: 8px;
 `;
 

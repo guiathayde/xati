@@ -1,5 +1,7 @@
 import React from 'react';
 import { useWindowDimensions, useColorScheme, Image, View } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -14,6 +16,17 @@ export const SignIn = () => {
   const colorScheme = useColorScheme();
   const { colors } = useTheme();
 
+  async function onGoogleButtonPress() {
+    // Get the users ID token
+    const { idToken } = await GoogleSignin.signIn();
+
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  }
+
   return (
     <View
       style={{
@@ -27,7 +40,14 @@ export const SignIn = () => {
         style={{ width: 136, height: 73, marginTop: height * 0.2315 }}
       />
 
-      <SignInButton backgroundColor={colors.signInButtonBackground}>
+      <SignInButton
+        backgroundColor={colors.signInButtonBackground}
+        onPress={() =>
+          onGoogleButtonPress().then(() =>
+            console.log('Signed in with Google!'),
+          )
+        }
+      >
         <SignInIcon source={GoogleIcon} />
 
         <SignInText style={{ transform: [{ translateX: -45 }] }}>

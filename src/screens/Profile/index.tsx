@@ -1,12 +1,7 @@
 import React from 'react';
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
+import auth from '@react-native-firebase/auth';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -75,6 +70,7 @@ export const Profile = () => {
             containerStyle={{ width: '80%', marginTop: 24 }}
             color="red"
             text="Logout"
+            onPress={() => auth().signOut()}
           />
         </ContentContainer>
       </KeyboardAvoidingView>
