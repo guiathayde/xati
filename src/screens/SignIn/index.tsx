@@ -1,25 +1,39 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { useWindowDimensions, useColorScheme, Image, View } from 'react-native';
+
+import { useTheme } from '../../hooks/theme';
+
+import { SignInButton, SignInIcon, SignInText } from './styles';
+
+import LogoIconLight from '../../assets/signin/ic_logo_light.png';
+import LogoIconDark from '../../assets/signin/ic_logo_dark.png';
+import GoogleIcon from '../../assets/signin/ic_google.png';
 
 export const SignIn = () => {
+  const { height } = useWindowDimensions();
+  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
+
   return (
     <View
       style={{
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#d2d2d2',
+        backgroundColor: colors.appBackground,
       }}
     >
-      <Text
-        style={{
-          color: '#243443',
-          fontFamily: 'Inter-Medium',
-          fontSize: 64,
-        }}
-      >
-        Sign In
-      </Text>
+      <Image
+        source={colorScheme === 'light' ? LogoIconLight : LogoIconDark}
+        style={{ width: 136, height: 73, marginTop: height * 0.2315 }}
+      />
+
+      <SignInButton backgroundColor={colors.signInButtonBackground}>
+        <SignInIcon source={GoogleIcon} />
+
+        <SignInText style={{ transform: [{ translateX: -45 }] }}>
+          Sign In with Google
+        </SignInText>
+      </SignInButton>
     </View>
   );
 };
