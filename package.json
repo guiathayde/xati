@@ -10,12 +10,16 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.7",
+    "@react-native-clipboard/clipboard": "^1.10.0",
     "@react-native-firebase/app": "^15.2.0",
     "@react-native-firebase/auth": "^15.2.0",
+    "@react-native-firebase/firestore": "^15.2.0",
     "@react-native-google-signin/google-signin": "^8.0.0",
     "@react-navigation/native": "^6.0.11",
     "@react-navigation/native-stack": "^6.7.0",
     "dayjs": "^1.11.4",
+    "nanoid": "^4.0.0",
     "react": "18.0.0",
     "react-native": "0.69.2",
     "react-native-gifted-chat": "^1.0.4",

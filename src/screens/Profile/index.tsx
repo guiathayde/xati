@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import auth from '@react-native-firebase/auth';
+import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -23,7 +25,7 @@ import ContentCopyIcon from '../../assets/profile/ic_content_copy.png';
 type User = {
   uid: string;
   name: string;
-  avatarUrl: string;
+  photoUrl: string;
 };
 
 export const Profile = () => {
@@ -31,6 +33,7 @@ export const Profile = () => {
   const headerHeight = useHeaderHeight();
 
   const [user, setUser] = useState<User>();
+  const [userCode, setUserCode] = useState('');
 
   useEffect(() => {
     const userData = auth().currentUser;
@@ -39,14 +42,22 @@ export const Profile = () => {
       setUser({
         uid: userData.uid,
         name: userData.displayName ? userData.displayName : '',
-        avatarUrl: userData.photoURL ? userData.photoURL : '',
+        photoUrl: userData.photoURL ? userData.photoURL : '',
       });
     }
+
+    AsyncStorage.getItem('@Xati.:userCode')
+      .then(code => {
+        if (code) {
+          setUserCode(code);
+        }
+      })
+      .catch(error => console.log(error));
   }, []);
 
   return (
     <Container backgroundColor={colors.appBackground}>
-      <Header title="Profile" translateXTitle={-25} />
+      <Header title="Profile" />
 
       <KeyboardAvoidingView
         keyboardVerticalOffset={headerHeight}
@@ -60,7 +71,7 @@ export const Profile = () => {
           <PhotoContainer>
             <PhotoImage
               source={{
-                uri: user?.avatarUrl,
+                uri: user?.photoUrl,
               }}
             />
             <CircularButton
@@ -87,6 +98,9 @@ export const Profile = () => {
           <Input
             containerStyle={{ width: '80%', marginTop: 32 }}
             iconSource={ContentCopyIcon}
+            iconCallback={() => Clipboard.setString(userCode)}
+            value={userCode}
+            editable={false}
           />
 
           <RectangularButton

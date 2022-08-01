@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -11,18 +11,18 @@ import { Container, HeaderTitle, HeaderImage } from './styles';
 interface HeaderProps {
   containerStyle?: StyleProp<ViewStyle>;
   title?: string;
-  translateXTitle?: number;
   imageUrl?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   containerStyle,
   title,
-  translateXTitle = 0,
   imageUrl,
 }) => {
   const { colors } = useTheme();
   const navigation = useNavigation();
+
+  const [textWidth, setTextWidth] = useState(0);
 
   return (
     <Container style={containerStyle}>
@@ -37,8 +37,12 @@ export const Header: React.FC<HeaderProps> = ({
       />
 
       <HeaderTitle
-        style={{ transform: [{ translateX: translateXTitle }] }}
+        style={{ transform: [{ translateX: -1 * (textWidth * 0.45) }] }}
         color={colors.descriptionFont}
+        onLayout={e => {
+          const { width } = e.nativeEvent.layout;
+          setTextWidth(width);
+        }}
       >
         {title}
       </HeaderTitle>

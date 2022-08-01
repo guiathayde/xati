@@ -2,6 +2,9 @@ import React from 'react';
 import { useWindowDimensions, useColorScheme, Image, View } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import firestore from '@react-native-firebase/firestore';
+import { customAlphabet } from 'nanoid/non-secure';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -27,6 +30,45 @@ export const SignIn = () => {
     return auth().signInWithCredential(googleCredential);
   }
 
+  async function saveNewUser() {
+    const currentUser = auth().currentUser;
+    if (currentUser) {
+      const userAlreadyExists = await firestore()
+        .collection('users')
+        .doc(currentUser.uid)
+        .get();
+
+      if (!userAlreadyExists.exists) {
+        const nanoid = customAlphabet(
+          'abcdefghijklmnopqrstuvwxyz0123456789',
+          5,
+        );
+
+        const code = nanoid();
+
+        await firestore()
+          .collection('users')
+          .doc(currentUser.uid)
+          .set({
+            name: currentUser.displayName,
+            email: currentUser.email,
+            photoUrl: currentUser.photoURL,
+            code,
+          })
+          .then(async () => await AsyncStorage.setItem('@Xati.:userCode', code))
+          .catch(error => console.log(error));
+
+        console.log('User created');
+      } else {
+        const userData = userAlreadyExists.data();
+        if (userData)
+          await AsyncStorage.setItem('@Xati.:userCode', userData.code);
+
+        console.log('User already exists');
+      }
+    }
+  }
+
   return (
     <View
       style={{
@@ -43,9 +85,9 @@ export const SignIn = () => {
       <SignInButton
         backgroundColor={colors.signInButtonBackground}
         onPress={() =>
-          onGoogleButtonPress().catch(error =>
-            console.log('Error signing in with Google', error),
-          )
+          onGoogleButtonPress()
+            .then(async () => await saveNewUser())
+            .catch(error => console.log('Error signing in with Google', error))
         }
       >
         <SignInIcon source={GoogleIcon} />

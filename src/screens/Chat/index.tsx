@@ -5,6 +5,7 @@ import 'dayjs/locale/pt-br';
 import auth from '@react-native-firebase/auth';
 
 import { useTheme } from '../../hooks/theme';
+import { useChat } from '../../hooks/chat';
 
 import { Header } from '../../components/Header';
 import { Input } from '../../components/Input';
@@ -16,11 +17,12 @@ import SendIcon from '../../assets/chat/ic_send.png';
 type User = {
   uid: string;
   name: string;
-  avatarUrl: string;
+  photoUrl: string;
 };
 
 export const Chat = () => {
   const { colors } = useTheme();
+  const { userSelected } = useChat();
 
   const [user, setUser] = useState<User>();
 
@@ -34,9 +36,9 @@ export const Chat = () => {
       text: textMessage,
       createdAt: new Date(),
       user: {
-        _id: 1,
+        _id: user?.uid ? user?.uid : 567,
         name: user?.name,
-        avatar: user?.avatarUrl,
+        avatar: user?.photoUrl,
       },
     };
 
@@ -54,7 +56,7 @@ export const Chat = () => {
       setUser({
         uid: userData.uid,
         name: userData.displayName ? userData.displayName : '',
-        avatarUrl: userData.photoURL ? userData.photoURL : '',
+        photoUrl: userData.photoURL ? userData.photoURL : '',
       });
     }
 
@@ -64,9 +66,9 @@ export const Chat = () => {
         text: 'Hello developer',
         createdAt: new Date(),
         user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
+          _id: userSelected?.uid ? userSelected?.uid : 890,
+          name: userSelected?.name,
+          avatar: userSelected?.photoUrl,
         },
       },
     ]);
@@ -84,10 +86,7 @@ export const Chat = () => {
     <Container backgroundColor={colors.appBackground}>
       <Header
         title={user?.name}
-        translateXTitle={
-          -1 * ((user?.name.length ? user?.name.length : 0) * 4.5)
-        }
-        imageUrl={user?.avatarUrl}
+        imageUrl={userSelected?.photoUrl}
       />
 
       <View style={{ flex: 1, width: '100%', marginBottom: 20 }}>
@@ -96,10 +95,11 @@ export const Chat = () => {
           user={{
             _id: 1,
             name: user?.name,
-            avatar: user?.avatarUrl,
+            avatar: user?.photoUrl,
           }}
           isTyping={isTyping}
           locale="pt-br"
+          renderAvatar={() => null}
           renderInputToolbar={props => (
             <Input
               containerStyle={{ width: '90%', alignSelf: 'center' }}
