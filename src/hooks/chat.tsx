@@ -9,6 +9,9 @@ interface User {
 interface ChatContextData {
   userSelected: User | undefined;
   setUserSelected: React.Dispatch<React.SetStateAction<User | undefined>>;
+
+  chatId: string | undefined;
+  setChatId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 const ChatContext = createContext<ChatContextData>({} as ChatContextData);
@@ -18,12 +21,15 @@ interface ChatProviderProps {
 }
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [userSelected, setUserSelected] = useState<User>();
+  const [chatId, setChatId] = useState<string>();
 
   return (
     <ChatContext.Provider
       value={{
         userSelected,
         setUserSelected,
+        chatId,
+        setChatId,
       }}
     >
       {children}

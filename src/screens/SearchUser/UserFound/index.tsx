@@ -15,30 +15,33 @@ type User = {
 };
 
 interface UserFoundProps {
-  user: User;
+  userFound: User;
 }
 
-export const UserFound: React.FC<UserFoundProps> = ({ user }) => {
+export const UserFound: React.FC<UserFoundProps> = ({ userFound }) => {
   const { colors } = useTheme();
-  const { setUserSelected } = useChat();
+  const { setUserSelected, setChatId } = useChat();
   const navigation = useNavigation();
 
   const handleOnPress = useCallback(() => {
-    setUserSelected(user);
+    setChatId(undefined);
+    setUserSelected(userFound);
     navigation.navigate('Chat');
-  }, [user]);
+  }, [userFound]);
 
   return (
     <>
       <Container onPress={handleOnPress}>
-        <Photo source={{ uri: user.photoUrl }} />
+        <Photo source={{ uri: userFound.photoUrl }} />
 
         <NameText
-          style={{ transform: [{ translateX: -1 * (user.name.length * 4) }] }}
+          style={{
+            transform: [{ translateX: -1 * (userFound.name.length * 4) }],
+          }}
           color={colors.descriptionFont}
           numberOfLines={1}
         >
-          {user.name}
+          {userFound.name}
         </NameText>
 
         <ChevronRight source={ChevronRightIcon} />

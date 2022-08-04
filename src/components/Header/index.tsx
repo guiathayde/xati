@@ -37,7 +37,8 @@ export const Header: React.FC<HeaderProps> = ({
       />
 
       <HeaderTitle
-        style={{ transform: [{ translateX: -1 * (textWidth * 0.45) }] }}
+        style={{ transform: [{ translateX: -1 * (textWidth * 0.5) }] }}
+        numberOfLines={1}
         color={colors.descriptionFont}
         onLayout={e => {
           const { width } = e.nativeEvent.layout;

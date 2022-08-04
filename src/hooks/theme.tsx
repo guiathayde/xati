@@ -9,6 +9,7 @@ interface Colors {
   backButtonBackground: string;
   defaultButtonBackground: string;
   logoutButtonBackground: string;
+  editPhotoModalBackground: string;
 
   inputBackground: string;
 
@@ -37,6 +38,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       backButtonBackground: '#E5F1FF',
       defaultButtonBackground: '#377DFF',
       logoutButtonBackground: '#FF3737',
+      editPhotoModalBackground: '#F7F7F9',
       inputBackground: '#FFFFFF',
       descriptionFont: '#243443',
       messageReceivedBackground: '#FFFFFF',
@@ -49,6 +51,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       backButtonBackground: '#E5F1FF',
       defaultButtonBackground: '#377DFF',
       logoutButtonBackground: '#FF3737',
+      editPhotoModalBackground: '#377DFF',
       inputBackground: '#E5F1FF',
       descriptionFont: '#E5F1FF',
       messageReceivedBackground: '#E5F1FF',
@@ -66,6 +69,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     backButtonBackground: '#E5F1FF',
     defaultButtonBackground: '#377DFF',
     logoutButtonBackground: '#FF3737',
+    editPhotoModalBackground: '#F7F7F9',
     inputBackground: '#FFFFFF',
     descriptionFont: '#243443',
     messageReceivedBackground: '#FFFFFF',

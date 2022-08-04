@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 
@@ -32,29 +32,31 @@ export const SearchUser = () => {
 
   const [codeSearched, setCodeSearched] = useState('');
   const [userFound, setUserFound] = useState<User>();
+  const [wasUserFound, setWasUserFound] = useState<boolean>();
 
   const onSearchButtonPress = useCallback(async () => {
+    Keyboard.dismiss();
+
     if (codeSearched.length > 3) {
       const querySnapshot = await firestore()
         .collection('users')
         .where('code', '==', codeSearched)
         .get();
 
-      const userSearched = querySnapshot.docs.map(doc => {
-        return {
-          uid: doc.id,
-          ...doc.data(),
-        };
-      })[0] as User;
-      console.log('userSearched:', userSearched);
-
-      if (userSearched.uid) {
-        setUserFound(userSearched);
+      if (querySnapshot.empty) {
+        setWasUserFound(false);
       } else {
-        Alert.alert(
-          'Usuário não encontrado',
-          'Não foi possível encontrar o usuário com o código informado.',
-        );
+        const userSearched = querySnapshot.docs.map(doc => {
+          return {
+            uid: doc.id,
+            ...doc.data(),
+          };
+        })[0] as User;
+
+        if (userSearched.uid) {
+          setWasUserFound(true);
+          setUserFound(userSearched);
+        }
       }
     } else {
       Alert.alert('User code must be at least 5 characters long');
@@ -63,10 +65,13 @@ export const SearchUser = () => {
 
   return (
     <Container backgroundColor={colors.appBackground}>
-      <Header title="Search User" translateXTitle={-45} />
+      <Header title="Search User" />
 
       <SearchContainer>
-        <Input containerStyle={{ width: '75%' }} onChangeText={setCodeSearched} />
+        <Input
+          containerStyle={{ width: '75%' }}
+          onChangeText={setCodeSearched}
+        />
         <CircularButton
           containerStyle={{ marginLeft: 'auto', marginRight: 'auto' }}
           hasElevation
@@ -79,12 +84,16 @@ export const SearchUser = () => {
         />
       </SearchContainer>
 
-      {userFound && <UserFound user={userFound} />}
+      {userFound && <UserFound userFound={userFound} />}
 
-      <UserNotFoundText color={colors.descriptionFont}>
-        User not found
-      </UserNotFoundText>
-      <UserNotFoundImage source={SadEmojiIcon} />
+      {typeof wasUserFound !== 'undefined' && !wasUserFound && (
+        <>
+          <UserNotFoundText color={colors.descriptionFont}>
+            User not found
+          </UserNotFoundText>
+          <UserNotFoundImage source={SadEmojiIcon} />
+        </>
+      )}
     </Container>
   );
 };

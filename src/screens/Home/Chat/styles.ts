@@ -9,15 +9,18 @@ interface LastMessageTextProps {
 }
 
 interface TimeLastMessageTextProps {
+  update: number;
   color: string;
 }
 
 export const Container = styled.TouchableOpacity`
   display: flex;
   flex-direction: row;
-  align-items: center;
 
   padding: 4px;
+
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 export const Photo = styled.Image`
@@ -29,7 +32,9 @@ export const Photo = styled.Image`
   margin-right: 12px;
 `;
 
-export const NameAndLastMessageContainer = styled.View``;
+export const NameAndLastMessageContainer = styled.View`
+  max-width: 50%;
+`;
 
 export const NameText = styled.Text<NameTextProps>`
   font-family: 'Inter-Bold';
@@ -56,7 +61,6 @@ export const TimeLastMessageAndNotificationContainer = styled.View`
 export const TimeLastMessageText = styled.Text<TimeLastMessageTextProps>`
   font-family: 'Inter-Medium';
   font-size: 12px;
-  line-height: 15px;
 
   color: ${props => props.color};
 

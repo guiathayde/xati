@@ -4,13 +4,16 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import auth from '@react-native-firebase/auth';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 import { useTheme } from '../../hooks/theme';
 
 import { Header } from '../../components/Header';
 import { CircularButton } from '../../components/CircularButton';
 import { Input } from '../../components/Input';
+
 import { RectangularButton } from './RectangularButton';
+import { EditPhotoModal } from './EditPhotoModal';
 
 import {
   Container,
@@ -34,6 +37,8 @@ export const Profile = () => {
 
   const [user, setUser] = useState<User>();
   const [userCode, setUserCode] = useState('');
+
+  const [isEditPhotoModalVisible, setIsEditPhotoModalVisible] = useState(false);
 
   useEffect(() => {
     const userData = auth().currentUser;
@@ -81,6 +86,9 @@ export const Profile = () => {
               iconWidth={24}
               iconHeight={24}
               iconSource={require('../../assets/profile/ic_edit.png')}
+              onPress={() =>
+                setIsEditPhotoModalVisible(!isEditPhotoModalVisible)
+              }
             />
           </PhotoContainer>
 
@@ -98,7 +106,15 @@ export const Profile = () => {
           <Input
             containerStyle={{ width: '80%', marginTop: 32 }}
             iconSource={ContentCopyIcon}
-            iconCallback={() => Clipboard.setString(userCode)}
+            iconCallback={() => {
+              Clipboard.setString(userCode);
+              Toast.show({
+                type: 'info',
+                text1: 'Código copiado para a área de transferência',
+                position: 'bottom',
+                visibilityTime: 1000,
+              });
+            }}
             value={userCode}
             editable={false}
           />
@@ -115,6 +131,11 @@ export const Profile = () => {
           />
         </ContentContainer>
       </KeyboardAvoidingView>
+
+      <EditPhotoModal
+        isEditPhotoModalVisible={isEditPhotoModalVisible}
+        setIsEditPhotoModalVisible={setIsEditPhotoModalVisible}
+      />
     </Container>
   );
 };

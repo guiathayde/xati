@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import { IMessage } from 'react-native-gifted-chat';
 
 import { useTheme } from '../../hooks/theme';
 
@@ -20,11 +22,19 @@ import {
 
 import FloatingButtonIcon from '../../assets/home/ic_floating_button.png';
 import ArrowRightIcon from '../../assets/home/ic_right_arrow.png';
+import { FlatList } from 'react-native';
 
 type User = {
   uid: string;
   name: string;
-  avatarUrl: string;
+  photoUrl: string;
+};
+
+type ChatProps = {
+  id: string;
+  users: User[];
+  lastMessage: IMessage;
+  [key: string]: any;
 };
 
 export const Home = () => {
@@ -32,6 +42,7 @@ export const Home = () => {
   const navigation = useNavigation();
 
   const [user, setUser] = useState<User>();
+  const [chats, setChats] = useState<ChatProps[]>();
 
   useEffect(() => {
     const userData = auth().currentUser;
@@ -40,29 +51,65 @@ export const Home = () => {
       setUser({
         uid: userData.uid,
         name: userData.displayName ? userData.displayName : '',
-        avatarUrl: userData.photoURL ? userData.photoURL : '',
+        photoUrl: userData.photoURL ? userData.photoURL : '',
       });
     }
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      const subscriber = firestore()
+        .collection('chatsData')
+        .where('usersId', 'array-contains', user.uid)
+        .onSnapshot(snapshot => {
+          if (!snapshot.empty) {
+            const chatsUpdated = snapshot.docs.map(doc => {
+              return {
+                id: doc.id,
+                ...doc.data(),
+              };
+            }) as ChatProps[];
+
+            setChats(chatsUpdated);
+          }
+        });
+
+      return () => subscriber();
+    }
+  }, [user]);
+
   return (
     <Container backgroundColor={colors.appBackground}>
       <Profile onPress={() => navigation.navigate('Profile')}>
-        <ProfilePhoto
-          source={{ uri: user?.avatarUrl }}
-        />
+        <ProfilePhoto source={{ uri: user?.photoUrl }} />
       </Profile>
 
-      <Chat onPress={() => navigation.navigate('Chat')} />
+      <FlatList
+        style={{ flex: 1, width: '100%', marginTop: 16 }}
+        data={chats}
+        renderItem={({ item }) => (
+          <Chat
+            key={item.id}
+            chatData={item}
+            onPress={() => navigation.navigate('Chat')}
+          />
+        )}
+      />
 
-      <NoChatFound color={colors.descriptionFont}>No chat found</NoChatFound>
+      {typeof chats === 'undefined' && (
+        <>
+          <NoChatFound color={colors.descriptionFont}>
+            No chat found
+          </NoChatFound>
 
-      <FindUsersHereContainer>
-        <FindUsersHereText color={colors.descriptionFont}>
-          find users here
-        </FindUsersHereText>
-        <FindUsersHereArrow source={ArrowRightIcon} />
-      </FindUsersHereContainer>
+          <FindUsersHereContainer>
+            <FindUsersHereText color={colors.descriptionFont}>
+              find users here
+            </FindUsersHereText>
+            <FindUsersHereArrow source={ArrowRightIcon} />
+          </FindUsersHereContainer>
+        </>
+      )}
 
       <SearchUserButton onPress={() => navigation.navigate('SearchUser')}>
         <SearchUserIcon source={FloatingButtonIcon} />
