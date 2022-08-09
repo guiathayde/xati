@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { TouchableOpacity, useWindowDimensions } from 'react-native';
+import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 import Modal from 'react-native-modal';
 
 import { useTheme } from '../../../hooks/theme';
@@ -12,6 +15,12 @@ import {
   styles,
 } from './styles';
 
+type User = {
+  uid: string;
+  name: string;
+  photoURL: string;
+};
+
 interface EditPhotoModalProps {
   isEditPhotoModalVisible: boolean;
   setIsEditPhotoModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,6 +32,72 @@ export const EditPhotoModal: React.FC<EditPhotoModalProps> = ({
 }) => {
   const { colors } = useTheme();
   const { height } = useWindowDimensions();
+
+  const [user, setUser] = useState<User>();
+
+  const uploadPhoto = useCallback(
+    async (selectedPhoto: ImageOrVideo) => {
+      if (selectedPhoto) {
+        let fileType = '.jpg';
+        if (selectedPhoto.path) {
+          const type = selectedPhoto.path.match(/\.(?:.(?!\.))+$/);
+          if (type) fileType = type[0];
+        }
+        const fileName = `${user?.uid}${fileType}`;
+
+        const photoRef = storage().ref(`profilePhotos/${fileName}`);
+        if (selectedPhoto.path) {
+          const uploadTask = photoRef.putFile(selectedPhoto.path);
+
+          uploadTask.then(() => {
+            photoRef.getDownloadURL().then(url => {
+              auth().currentUser?.updateProfile({
+                photoURL: url,
+              });
+            });
+          });
+        }
+      }
+    },
+    [user],
+  );
+
+  async function handleUseCamera() {
+    const result = await ImagePicker.openCamera({
+      width: 500,
+      height: 500,
+      cropping: true,
+      mediaType: 'photo',
+    });
+
+    if (result.path) {
+      await uploadPhoto(result);
+    }
+  }
+
+  async function handleChooseFromGallery() {
+    const result = await ImagePicker.openPicker({
+      width: 500,
+      height: 500,
+      cropping: true,
+      mediaType: 'photo',
+    });
+
+    if (result.path) {
+      await uploadPhoto(result);
+    }
+  }
+
+  useEffect(() => {
+    const currentUser = auth().currentUser;
+    if (currentUser) {
+      setUser({
+        uid: currentUser.uid,
+        name: currentUser.displayName ? currentUser.displayName : '',
+        photoURL: currentUser.photoURL ? currentUser.photoURL : '',
+      });
+    }
+  }, []);
 
   return (
     <Modal
@@ -43,13 +118,16 @@ export const EditPhotoModal: React.FC<EditPhotoModalProps> = ({
       <Container backgroundColor={colors.editPhotoModalBackground}>
         <HandleModal />
 
-        <TouchableOpacity style={{ marginTop: 16 }}>
+        <TouchableOpacity
+          style={{ marginTop: 16 }}
+          onPress={async () => await handleUseCamera()}
+        >
           <SelectTypePhotoText>Use camera</SelectTypePhotoText>
         </TouchableOpacity>
 
         <Divider />
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={async () => await handleChooseFromGallery()}>
           <SelectTypePhotoText>Choose from gallery</SelectTypePhotoText>
         </TouchableOpacity>
       </Container>

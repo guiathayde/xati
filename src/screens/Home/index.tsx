@@ -45,15 +45,17 @@ export const Home = () => {
   const [chats, setChats] = useState<ChatProps[]>();
 
   useEffect(() => {
-    const userData = auth().currentUser;
+    const subscriber = auth().onAuthStateChanged(currentUser => {
+      if (currentUser) {
+        setUser({
+          uid: currentUser.uid,
+          name: currentUser.displayName ? currentUser.displayName : '',
+          photoUrl: currentUser.photoURL ? currentUser.photoURL : '',
+        });
+      }
+    });
 
-    if (userData) {
-      setUser({
-        uid: userData.uid,
-        name: userData.displayName ? userData.displayName : '',
-        photoUrl: userData.photoURL ? userData.photoURL : '',
-      });
-    }
+    return () => subscriber();
   }, []);
 
   useEffect(() => {

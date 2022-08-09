@@ -46,8 +46,16 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Xati. needs to access your camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Xati. needs to access your microphone.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Xati. needs permission to write photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Xati. needs to access your photos.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Bold.ttf</string>

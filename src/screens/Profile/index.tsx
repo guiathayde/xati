@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import auth from '@react-native-firebase/auth';
@@ -38,18 +38,49 @@ export const Profile = () => {
   const [user, setUser] = useState<User>();
   const [userCode, setUserCode] = useState('');
 
+  const [name, setName] = useState('');
+
   const [isEditPhotoModalVisible, setIsEditPhotoModalVisible] = useState(false);
 
-  useEffect(() => {
-    const userData = auth().currentUser;
-
-    if (userData) {
-      setUser({
-        uid: userData.uid,
-        name: userData.displayName ? userData.displayName : '',
-        photoUrl: userData.photoURL ? userData.photoURL : '',
-      });
+  const updateName = useCallback(() => {
+    if (name.length > 0) {
+      auth()
+        .currentUser?.updateProfile({
+          displayName: name,
+        })
+        .then(() => {
+          Toast.show({
+            type: 'info',
+            text1: 'Nome atualizado com sucesso!',
+            position: 'top',
+            visibilityTime: 2000,
+          });
+        })
+        .catch(error => {
+          console.log(error);
+          Toast.show({
+            type: 'error',
+            text1: 'Erro ao atualizar nome!',
+            text2: 'Tente novamente mais tarde.',
+            position: 'top',
+            visibilityTime: 3000,
+          });
+        });
     }
+  }, [name]);
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(currentUser => {
+      if (currentUser) {
+        setUser({
+          uid: currentUser.uid,
+          name: currentUser.displayName ? currentUser.displayName : '',
+          photoUrl: currentUser.photoURL ? currentUser.photoURL : '',
+        });
+
+        setName(currentUser.displayName ? currentUser.displayName : '');
+      }
+    });
 
     AsyncStorage.getItem('@Xati.:userCode')
       .then(code => {
@@ -58,6 +89,8 @@ export const Profile = () => {
         }
       })
       .catch(error => console.log(error));
+
+    return () => subscriber();
   }, []);
 
   return (
@@ -94,13 +127,15 @@ export const Profile = () => {
 
           <Input
             containerStyle={{ width: '80%', marginTop: 32 }}
-            value={user?.name}
+            value={name}
+            onChangeText={setName}
           />
 
           <RectangularButton
             containerStyle={{ width: '80%', marginTop: 24 }}
             color="blue"
             text="Save"
+            onPress={updateName}
           />
 
           <Input
@@ -120,7 +155,7 @@ export const Profile = () => {
           />
 
           <RectangularButton
-            containerStyle={{ width: '80%', marginTop: 24 }}
+            containerStyle={{ width: '80%', marginTop: 24, marginBottom: 64 }}
             color="red"
             text="Logout"
             onPress={() =>
