@@ -3,6 +3,7 @@ import { TouchableOpacity, useWindowDimensions } from 'react-native';
 import ImagePicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 import Modal from 'react-native-modal';
 
 import { useTheme } from '../../../hooks/theme';
@@ -18,7 +19,7 @@ import {
 type User = {
   uid: string;
   name: string;
-  photoURL: string;
+  photoUrl: string;
 };
 
 interface EditPhotoModalProps {
@@ -50,9 +51,13 @@ export const EditPhotoModal: React.FC<EditPhotoModalProps> = ({
           const uploadTask = photoRef.putFile(selectedPhoto.path);
 
           uploadTask.then(() => {
-            photoRef.getDownloadURL().then(url => {
-              auth().currentUser?.updateProfile({
+            photoRef.getDownloadURL().then(async url => {
+              await auth().currentUser?.updateProfile({
                 photoURL: url,
+              });
+
+              await firestore().collection('users').doc(user?.uid).update({
+                photoUrl: url,
               });
             });
           });
@@ -94,7 +99,7 @@ export const EditPhotoModal: React.FC<EditPhotoModalProps> = ({
       setUser({
         uid: currentUser.uid,
         name: currentUser.displayName ? currentUser.displayName : '',
-        photoURL: currentUser.photoURL ? currentUser.photoURL : '',
+        photoUrl: currentUser.photoURL ? currentUser.photoURL : '',
       });
     }
   }, []);

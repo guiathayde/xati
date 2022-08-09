@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
@@ -48,7 +49,11 @@ export const Profile = () => {
         .currentUser?.updateProfile({
           displayName: name,
         })
-        .then(() => {
+        .then(async () => {
+          await firestore().collection('users').doc(user?.uid).update({
+            name,
+          });
+
           Toast.show({
             type: 'info',
             text1: 'Nome atualizado com sucesso!',

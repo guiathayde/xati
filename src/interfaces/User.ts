@@ -4,5 +4,5 @@ export interface User extends FirebaseAuthTypes.UserInfo {
   uid: string;
   email: string;
   displayName: string;
-  photoURL: string;
+  photoUrl: string;
 }
