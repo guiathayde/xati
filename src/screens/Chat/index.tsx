@@ -31,7 +31,6 @@ export const Chat = () => {
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [textMessage, setTextMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
 
   const onSend = useCallback(async () => {
     const newMessage: IMessage = {
@@ -136,19 +135,11 @@ export const Chat = () => {
     return () => clearNotifications();
   }, [user, chatId]);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      setIsTyping(false);
-    }, 700);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [textMessage]);
-
   return (
     <Container backgroundColor={colors.appBackground}>
       <Header title={userSelected?.name} imageUrl={userSelected?.photoUrl} />
 
-      <View style={{ flex: 1, width: '100%', marginBottom: 20 }}>
+      <View style={{ flex: 1, width: '100%', marginTop: 16, marginBottom: 20 }}>
         <GiftedChat
           messages={messages}
           user={{
@@ -156,7 +147,6 @@ export const Chat = () => {
             name: user?.name,
             avatar: user?.photoUrl,
           }}
-          isTyping={isTyping}
           locale="pt-br"
           renderAvatar={() => null}
           showAvatarForEveryMessage={true}
@@ -166,10 +156,7 @@ export const Chat = () => {
               iconSource={SendIcon}
               iconCallback={async () => await onSend()}
               value={textMessage}
-              onChangeText={text => {
-                setIsTyping(true);
-                setTextMessage(text);
-              }}
+              onChangeText={setTextMessage}
               {...props}
             />
           )}
