@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Button, View } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import 'dayjs/locale/pt-br';
 import auth from '@react-native-firebase/auth';
@@ -9,6 +9,10 @@ import uuid from 'react-native-uuid';
 
 import { useTheme } from '../../hooks/theme';
 import { useChat } from '../../hooks/chat';
+
+import { writeMessage } from '../../database/business/services/writeMessage';
+import { getAllMessages } from '../../database/business/services/getAllMessages';
+import { writeOldMessages } from '../../database/business/services/writeOldMessages';
 
 import { Header } from '../../components/Header';
 import { Input } from '../../components/Input';
@@ -32,9 +36,51 @@ export const Chat = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [textMessage, setTextMessage] = useState('');
 
+  const sendMessageToFirebaseDatabase = useCallback(
+    async (newMessage: IMessage) => {
+      if (user && userSelected) {
+        if (chatId) {
+          await database().ref(`/chats/${chatId}`).push().set(newMessage);
+          await firestore()
+            .collection('chatsData')
+            .where('chatId', '==', chatId)
+            .get()
+            .then(querySnapshot => {
+              querySnapshot.forEach(async doc => {
+                await firestore()
+                  .collection('chatsData')
+                  .doc(doc.id)
+                  .update({
+                    lastMessage: newMessage,
+                    [userSelected.uid]: firestore.FieldValue.increment(1),
+                  });
+              });
+            });
+        } else {
+          const newChatId = uuid.v4().toString();
+
+          const chatData = {
+            usersId: [user?.uid, userSelected?.uid],
+            users: [user, userSelected],
+            chatId: newChatId,
+            lastMessage: newMessage,
+            [userSelected.uid]: 1,
+            [user?.uid]: 0,
+          };
+
+          await firestore().collection('chatsData').add(chatData);
+          setChatId(newChatId);
+
+          await database().ref(`/chats/${newChatId}`).push().set(newMessage);
+        }
+      }
+    },
+    [user, userSelected, chatId],
+  );
+
   const onSend = useCallback(async () => {
     const newMessage: IMessage = {
-      _id: Math.random(),
+      _id: uuid.v4().toString(),
       text: textMessage,
       createdAt: Date.now(),
       user: {
@@ -44,40 +90,8 @@ export const Chat = () => {
       },
     };
 
-    if (user && userSelected) {
-      if (chatId) {
-        await database().ref(`/chats/${chatId}`).push().set(newMessage);
-        await firestore()
-          .collection('chatsData')
-          .doc(chatId)
-          .update({
-            lastMessage: newMessage,
-            [userSelected.uid]: firestore.FieldValue.increment(1),
-          });
-      } else {
-        const newChatId = uuid.v4().toString();
-
-        const chatData = {
-          usersId: [user?.uid, userSelected?.uid],
-          users: [user, userSelected],
-          chatId: newChatId,
-          lastMessage: newMessage,
-          [userSelected.uid]: firestore.FieldValue.increment(1),
-        };
-
-        await firestore().collection('chatsData').add(chatData);
-        setChatId(newChatId);
-
-        await firestore()
-          .collection('users')
-          .doc(user?.uid)
-          .update({
-            chatsId: firestore.FieldValue.arrayUnion(newChatId),
-          });
-
-        await database().ref(`/chats/${newChatId}`).push().set(newMessage);
-      }
-    }
+    await sendMessageToFirebaseDatabase(newMessage);
+    if (chatId) console.log(await writeMessage(chatId, newMessage));
 
     setTextMessage('');
   }, [user, userSelected, chatId, textMessage]);
@@ -86,12 +100,27 @@ export const Chat = () => {
     if (user && chatId) {
       firestore()
         .collection('chatsData')
-        .doc(chatId)
-        .update({
-          [user.uid]: 0,
+        .where('chatId', '==', chatId)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(async doc => {
+            await firestore()
+              .collection('chatsData')
+              .doc(doc.id)
+              .update({
+                [user.uid]: 0,
+              });
+          });
         });
     }
   }, [user, chatId]);
+
+  const getMessagesFromLocalDatabase = useCallback(async () => {
+    if (chatId) {
+      const messages = await getAllMessages(chatId);
+      console.log(JSON.stringify(messages));
+    }
+  }, [chatId]);
 
   useEffect(() => {
     const userData = auth().currentUser;
@@ -106,18 +135,20 @@ export const Chat = () => {
   }, []);
 
   useEffect(() => {
+    console.log('chatId', chatId);
     if (chatId) {
       const onValueChange = database()
         .ref(`/chats/${chatId}`)
-        .on('value', snapshot => {
+        .on('value', async snapshot => {
           if (snapshot.exists()) {
             const messagesUpdated = Object.values(snapshot.val()) as IMessage[];
-
-            setMessages(
-              messagesUpdated.sort(
-                (a, b) => Number(b.createdAt) - Number(a.createdAt),
-              ),
+            const messagesUpdatedSorted = messagesUpdated.sort(
+              (a, b) => Number(b.createdAt) - Number(a.createdAt),
             );
+
+            console.log(await writeOldMessages(chatId, messagesUpdatedSorted));
+
+            setMessages(messagesUpdatedSorted);
             // setMessages(previousMessages =>
             //   GiftedChat.append(previousMessages, messagesUpdated),
             // );
@@ -138,6 +169,13 @@ export const Chat = () => {
   return (
     <Container backgroundColor={colors.appBackground}>
       <Header title={userSelected?.name} imageUrl={userSelected?.photoUrl} />
+
+      <Button
+        title="Read Realm Database"
+        onPress={async () => {
+          await getMessagesFromLocalDatabase();
+        }}
+      />
 
       <View style={{ flex: 1, width: '100%', marginTop: 16, marginBottom: 20 }}>
         <GiftedChat

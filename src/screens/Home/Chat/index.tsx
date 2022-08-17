@@ -98,7 +98,7 @@ export const Chat: React.FC<ChatProps> = ({ chatData, onPress }) => {
     <>
       <Container
         onPress={() => {
-          setChatId(chatData.id);
+          setChatId(chatData.chatId);
           setUserSelected(selectedUser);
           if (onPress) onPress();
         }}
