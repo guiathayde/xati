@@ -9,6 +9,7 @@ install! 'cocoapods', :deterministic_uuids => false
 production = ENV["PRODUCTION"] == "1"
 
 target 'xati' do
+#  use_frameworks!
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -37,7 +38,7 @@ target 'xati' do
     inherit! :complete
     # Pods for testing
   end
-
+  
   post_install do |installer|
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
