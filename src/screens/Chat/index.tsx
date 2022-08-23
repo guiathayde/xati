@@ -129,12 +129,12 @@ export const Chat = () => {
   ) {
     if (chatId && snapshot.exists()) {
       const oldMessages = Object.values(snapshot.val()) as IMessage[];
+
+      await writeMessages(chatId, oldMessages);
+
       const oldMessagesSorted = oldMessages.sort(
         (a, b) => Number(b.createdAt) - Number(a.createdAt),
       );
-
-      console.log('onSnapshotReceivedFromFirebase');
-      await writeMessages(chatId, oldMessagesSorted);
 
       return oldMessagesSorted[0];
     }
@@ -197,9 +197,12 @@ export const Chat = () => {
       getAllMessages(chatId).then(oldMessagesStored => {
         if (oldMessagesStored.length > 0) {
           const oldMessages = Array.from(oldMessagesStored) as IMessage[];
-          setMessages(oldMessages);
+          const oldMessagesSorted = oldMessages.sort(
+            (a, b) => Number(b.createdAt) - Number(a.createdAt),
+          );
+          setMessages(oldMessagesSorted);
 
-          const timestapmLastMessage = Number(oldMessages[0].createdAt);
+          const timestapmLastMessage = Number(oldMessagesSorted[0].createdAt);
 
           database()
             .ref(`/chats/${chatId}`)
@@ -208,8 +211,8 @@ export const Chat = () => {
             .once('value', async snapshot => {
               await onSnapshotReceivedFromFirebase(chatId, snapshot);
 
-              const timeLastMessage = oldMessages[0]
-                ? Number(oldMessages[0].createdAt)
+              const timeLastMessage = oldMessagesSorted[0]
+                ? Number(oldMessagesSorted[0].createdAt)
                 : undefined;
 
               onChangeValue = listenNewMessagesFromFirebaseDatabase(
