@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 
 interface NameTextProps {
@@ -50,6 +51,8 @@ export const TimeLastMessageAndNotificationContainer = styled.View`
   display: flex;
   align-items: center;
 
+  max-width: 33%;
+
   margin-left: auto;
   margin-right: 8px;
 `;
@@ -100,3 +103,11 @@ export const Divider = styled.View`
 
   margin-top: 2px;
 `;
+
+export const styles = StyleSheet.create({
+  timeLastMessageText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginBottom: 4,
+  },
+});

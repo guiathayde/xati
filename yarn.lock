@@ -6670,6 +6670,11 @@ react-native-lightbox-v2@0.9.0:
   resolved "https://registry.yarnpkg.com/react-native-lightbox-v2/-/react-native-lightbox-v2-0.9.0.tgz#b97be4d892ebb959069c451948b11da390bc46d8"
   integrity sha512-Fc5VFHFj2vokS+OegyTsANKb1CYoUlOtAv+EBH5wtpJn1b5cey6jVXH7136G5+8OC9JmKWSgKHc5thFwOoZTUg==
 
+react-native-marquee@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-marquee/-/react-native-marquee-0.4.0.tgz#6b1ccc8c0b6160830453139b8bedf753388112e3"
+  integrity sha512-YLVqHGNllE6t6qDqMgPhJ5Qj5s6YMHx4MDR8l+FTDSyDsiM5FHV/aR7bx+yiMbU+3cHSGtm8W/7J1SwS/A/RKA==
+
 react-native-modal@^13.0.1:
   version "13.0.1"
   resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-13.0.1.tgz#691f1e646abb96fa82c1788bf18a16d585da37cd"

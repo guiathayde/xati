@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import { IMessage } from 'react-native-gifted-chat';
+import MarqueeText from 'react-native-marquee';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 
@@ -13,11 +14,11 @@ import {
   NameText,
   LastMessageText,
   TimeLastMessageAndNotificationContainer,
-  TimeLastMessageText,
   NotificationView,
   NotificationText,
   ChevronRight,
   Divider,
+  styles,
 } from './styles';
 
 import ChevronRightIcon from '../../../assets/home/chat/ic_chevron_right.png';
@@ -43,6 +44,11 @@ interface ChatProps {
 
 export const Chat: React.FC<ChatProps> = ({ chatData, onPress }) => {
   moment.locale('pt-br');
+  moment.updateLocale('pt-br', {
+    relativeTime: {
+      ss: 'há %d segundos',
+    },
+  });
 
   const { colors } = useTheme();
   const { setChatId, setUserSelected } = useChat();
@@ -120,13 +126,17 @@ export const Chat: React.FC<ChatProps> = ({ chatData, onPress }) => {
         </NameAndLastMessageContainer>
 
         <TimeLastMessageAndNotificationContainer>
-          <TimeLastMessageText
-            color={colors.descriptionFont}
-            numberOfLines={1}
-            update={updateLastMessageTime}
+          <MarqueeText
+            style={{
+              ...styles.timeLastMessageText,
+              color: colors.descriptionFont,
+            }}
+            speed={0.001}
+            loop={true}
+            delay={3000}
           >
             {moment(chatData.lastMessage.createdAt).fromNow()}
-          </TimeLastMessageText>
+          </MarqueeText>
 
           {notification > 0 && (
             <NotificationView>
