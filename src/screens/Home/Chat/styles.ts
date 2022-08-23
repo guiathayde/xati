@@ -14,13 +14,8 @@ interface TimeLastMessageTextProps {
 }
 
 export const Container = styled.TouchableOpacity`
-  display: flex;
+  width: 100%;
   flex-direction: row;
-
-  padding: 4px;
-
-  margin-left: auto;
-  margin-right: auto;
 `;
 
 export const Photo = styled.Image`
@@ -29,6 +24,7 @@ export const Photo = styled.Image`
 
   border-radius: 25px;
 
+  margin-left: 20px;
   margin-right: 12px;
 `;
 
@@ -54,7 +50,7 @@ export const TimeLastMessageAndNotificationContainer = styled.View`
   display: flex;
   align-items: center;
 
-  margin-left: 8px;
+  margin-left: auto;
   margin-right: 8px;
 `;
 
@@ -91,10 +87,16 @@ export const NotificationText = styled.Text`
 export const ChevronRight = styled.Image`
   width: 24px;
   height: 24px;
+
+  margin-right: 20px;
+  margin-top: auto;
+  margin-bottom: auto;
 `;
 
 export const Divider = styled.View`
   width: 100%;
   height: 1px;
   background-color: #d2d2d2;
+
+  margin-top: 2px;
 `;

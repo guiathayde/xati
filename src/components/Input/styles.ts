@@ -6,7 +6,7 @@ interface ContainerProps {
 
 export const Container = styled.View<ContainerProps>`
   width: 100%;
-  height: 54px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   flex-direction: row;

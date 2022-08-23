@@ -13,7 +13,7 @@ export const Container = styled.View`
 
   position: relative;
 
-  margin-top: 32px;
+  margin-top: 24px;
 `;
 
 export const HeaderTitle = styled.Text<HeaderTitleProps>`

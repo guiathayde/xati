@@ -4,15 +4,17 @@ import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import 'dayjs/locale/pt-br';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import database from '@react-native-firebase/database';
+import database, {
+  FirebaseDatabaseTypes,
+} from '@react-native-firebase/database';
 import uuid from 'react-native-uuid';
 
 import { useTheme } from '../../hooks/theme';
 import { useChat } from '../../hooks/chat';
 
-import { writeMessage } from '../../database/business/services/writeMessage';
+import { listenNewMessage } from '../../database/business/services/listenNewMessages';
 import { getAllMessages } from '../../database/business/services/getAllMessages';
-import { writeOldMessages } from '../../database/business/services/writeOldMessages';
+import { writeMessages } from '../../database/business/services/writeMessages';
 
 import { Header } from '../../components/Header';
 import { Input } from '../../components/Input';
@@ -91,7 +93,6 @@ export const Chat = () => {
     };
 
     await sendMessageToFirebaseDatabase(newMessage);
-    if (chatId) console.log(await writeMessage(chatId, newMessage));
 
     setTextMessage('');
   }, [user, userSelected, chatId, textMessage]);
@@ -122,6 +123,56 @@ export const Chat = () => {
     }
   }, [chatId]);
 
+  async function onSnapshotReceivedFromFirebase(
+    chatId: string | undefined,
+    snapshot: FirebaseDatabaseTypes.DataSnapshot,
+  ) {
+    if (chatId && snapshot.exists()) {
+      const oldMessages = Object.values(snapshot.val()) as IMessage[];
+      const oldMessagesSorted = oldMessages.sort(
+        (a, b) => Number(b.createdAt) - Number(a.createdAt),
+      );
+
+      console.log('onSnapshotReceivedFromFirebase');
+      await writeMessages(chatId, oldMessagesSorted);
+
+      return oldMessagesSorted[0];
+    }
+  }
+
+  function listenNewMessagesFromFirebaseDatabase(
+    chatId: string | undefined,
+    timeLastMessage: number | undefined,
+  ) {
+    if (chatId) {
+      if (timeLastMessage) {
+        return database()
+          .ref(`/chats/${chatId}`)
+          .orderByChild('createdAt')
+          .startAt(timeLastMessage + 2)
+          .limitToLast(1)
+          .on('child_added', async snapshot => {
+            if (snapshot.exists()) {
+              const messageUpdated = snapshot.val() as IMessage;
+
+              await writeMessages(chatId, [messageUpdated]);
+            }
+          });
+      }
+
+      return database()
+        .ref(`/chats/${chatId}`)
+        .limitToLast(1)
+        .on('child_added', async snapshot => {
+          if (snapshot.exists()) {
+            const messageUpdated = snapshot.val() as IMessage;
+
+            await writeMessages(chatId, [messageUpdated]);
+          }
+        });
+    }
+  }
+
   useEffect(() => {
     const userData = auth().currentUser;
 
@@ -135,28 +186,64 @@ export const Chat = () => {
   }, []);
 
   useEffect(() => {
-    console.log('chatId', chatId);
     if (chatId) {
-      const onValueChange = database()
-        .ref(`/chats/${chatId}`)
-        .on('value', async snapshot => {
-          if (snapshot.exists()) {
-            const messagesUpdated = Object.values(snapshot.val()) as IMessage[];
-            const messagesUpdatedSorted = messagesUpdated.sort(
-              (a, b) => Number(b.createdAt) - Number(a.createdAt),
-            );
+      let onChangeValue:
+        | ((
+            a: FirebaseDatabaseTypes.DataSnapshot | null,
+            b?: string | null | undefined,
+          ) => void)
+        | undefined;
 
-            console.log(await writeOldMessages(chatId, messagesUpdatedSorted));
+      getAllMessages(chatId).then(oldMessagesStored => {
+        if (oldMessagesStored.length > 0) {
+          const oldMessages = Array.from(oldMessagesStored) as IMessage[];
+          setMessages(oldMessages);
 
-            setMessages(messagesUpdatedSorted);
-            // setMessages(previousMessages =>
-            //   GiftedChat.append(previousMessages, messagesUpdated),
-            // );
-          }
-        });
+          const timestapmLastMessage = Number(oldMessages[0].createdAt);
 
-      return () =>
-        database().ref(`/chats/${chatId}`).off('value', onValueChange);
+          database()
+            .ref(`/chats/${chatId}`)
+            .orderByChild('createdAt')
+            .startAt(timestapmLastMessage + 2)
+            .once('value', async snapshot => {
+              await onSnapshotReceivedFromFirebase(chatId, snapshot);
+
+              const timeLastMessage = oldMessages[0]
+                ? Number(oldMessages[0].createdAt)
+                : undefined;
+
+              onChangeValue = listenNewMessagesFromFirebaseDatabase(
+                chatId,
+                timeLastMessage,
+              );
+            });
+        } else {
+          database()
+            .ref(`/chats/${chatId}`)
+            .once('value', async snapshot => {
+              await onSnapshotReceivedFromFirebase(chatId, snapshot);
+
+              onChangeValue = listenNewMessagesFromFirebaseDatabase(
+                chatId,
+                undefined,
+              );
+            });
+        }
+      });
+
+      let messagesListenerLocalDatabase: Realm.Results<Realm.Object>;
+      listenNewMessage(chatId, newMessage => {
+        setMessages(previousMessages =>
+          GiftedChat.append(previousMessages, [newMessage]),
+        );
+      }).then(messagesListener => {
+        messagesListenerLocalDatabase = messagesListener;
+      });
+
+      return () => {
+        database().ref(`/chats/${chatId}`).off('child_added');
+        messagesListenerLocalDatabase.removeAllListeners();
+      };
     }
   }, [chatId]);
 
@@ -170,14 +257,14 @@ export const Chat = () => {
     <Container backgroundColor={colors.appBackground}>
       <Header title={userSelected?.name} imageUrl={userSelected?.photoUrl} />
 
-      <Button
+      {/* <Button
         title="Read Realm Database"
         onPress={async () => {
           await getMessagesFromLocalDatabase();
         }}
-      />
+      /> */}
 
-      <View style={{ flex: 1, width: '100%', marginTop: 16, marginBottom: 20 }}>
+      <View style={{ flex: 1, width: '100%', marginTop: 16, marginBottom: 8 }}>
         <GiftedChat
           messages={messages}
           user={{
