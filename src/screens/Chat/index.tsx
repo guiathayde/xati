@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, View } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import 'dayjs/locale/pt-br';
+import notifee from '@notifee/react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import database, {
@@ -22,11 +23,13 @@ import { Input } from '../../components/Input';
 import { Container } from './styles';
 
 import SendIcon from '../../assets/chat/ic_send.png';
+import { sendNotificationToFirebase } from '../../services/Notifications';
 
 type User = {
   uid: string;
   name: string;
   photoUrl: string;
+  fcmToken?: string;
 };
 
 export const Chat = () => {
@@ -34,6 +37,7 @@ export const Chat = () => {
   const { userSelected, chatId, setChatId } = useChat();
 
   const [user, setUser] = useState<User>();
+  const [userSelectedFCMToken, setUserSelectedFCMToken] = useState<string>();
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [textMessage, setTextMessage] = useState('');
@@ -75,9 +79,17 @@ export const Chat = () => {
 
           await database().ref(`/chats/${newChatId}`).push().set(newMessage);
         }
+
+        if (userSelectedFCMToken)
+          sendNotificationToFirebase(
+            user.name,
+            userSelectedFCMToken,
+            newMessage.text,
+          );
+        else console.error('userSelectedFCMToken is undefined');
       }
     },
-    [user, userSelected, chatId],
+    [user, userSelected, chatId, userSelectedFCMToken],
   );
 
   const onSend = useCallback(async () => {
@@ -183,7 +195,19 @@ export const Chat = () => {
         photoUrl: userData.photoURL ? userData.photoURL : '',
       });
     }
-  }, []);
+
+    if (userSelected)
+      firestore()
+        .collection('users')
+        .doc(userSelected.uid)
+        .get()
+        .then(doc => {
+          if (doc.exists) {
+            const userSelectedData = doc.data() as User;
+            setUserSelectedFCMToken(userSelectedData.fcmToken);
+          }
+        });
+  }, [userSelected]);
 
   useEffect(() => {
     if (chatId) {
@@ -263,7 +287,6 @@ export const Chat = () => {
       {/* <Button
         title="Read Realm Database"
         onPress={async () => {
-          await getMessagesFromLocalDatabase();
         }}
       /> */}
 

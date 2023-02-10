@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import messaging from '@react-native-firebase/messaging';
 import firestore from '@react-native-firebase/firestore';
 import { IMessage } from 'react-native-gifted-chat';
 
@@ -45,17 +46,41 @@ export const Home = () => {
   const [chats, setChats] = useState<ChatProps[]>();
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(currentUser => {
+    const userDataUnsubscribe = auth().onAuthStateChanged(currentUser => {
       if (currentUser) {
         setUser({
           uid: currentUser.uid,
           name: currentUser.displayName ? currentUser.displayName : '',
           photoUrl: currentUser.photoURL ? currentUser.photoURL : '',
         });
+
+        messaging()
+          .getToken()
+          .then(fcmToken => {
+            firestore()
+              .collection('users')
+              .doc(currentUser.uid)
+              .set({ fcmToken }, { merge: true });
+          });
       }
     });
 
-    return () => subscriber();
+    const notificationTokenUnsubscribe = messaging().onTokenRefresh(
+      async fcmToken => {
+        console.log('New FCM Token:', fcmToken);
+
+        const uid = auth().currentUser?.uid;
+        await firestore()
+          .collection('users')
+          .doc(uid)
+          .set({ fcmToken }, { merge: true });
+      },
+    );
+
+    return () => {
+      userDataUnsubscribe();
+      notificationTokenUnsubscribe();
+    };
   }, []);
 
   useEffect(() => {

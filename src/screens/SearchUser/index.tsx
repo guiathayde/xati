@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { Alert, Keyboard } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 
 import { useTheme } from '../../hooks/theme';
@@ -28,7 +27,6 @@ type User = {
 
 export const SearchUser = () => {
   const { colors } = useTheme();
-  const navigation = useNavigation();
 
   const [codeSearched, setCodeSearched] = useState('');
   const [userFound, setUserFound] = useState<User>();
