@@ -1,8 +1,8 @@
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from 'react-router-dom';
 
-import { Routes } from "./routes";
-import { AppProvider } from "./hooks";
-import GlobalStyle from "./styles/global";
+import { Routes } from './routes';
+import { AppProvider } from './hooks';
+import { GlobalStyle } from './styles/global';
 
 export function App() {
   return (

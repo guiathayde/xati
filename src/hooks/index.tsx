@@ -1,11 +1,19 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
-import { AuthProvider } from "./auth";
+import { WindowDimensionsProvider } from './windowDimensions';
+import { ColorModeProvider } from './colorMode';
+import { AuthProvider } from './auth';
 
 interface AppProviderProps {
   children: ReactNode;
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <WindowDimensionsProvider>
+      <ColorModeProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </ColorModeProvider>
+    </WindowDimensionsProvider>
+  );
 }
