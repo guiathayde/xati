@@ -1,6 +1,11 @@
 import styled from 'styled-components';
+import { shade } from 'polished';
 
-export const Container = styled.button`
+interface ContainerProps {
+  backgroundColor?: string;
+}
+
+export const Container = styled.button<ContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,7 +14,7 @@ export const Container = styled.button`
 
   width: 100%;
 
-  background: #377dff;
+  background-color: ${({ backgroundColor }) => backgroundColor || '#377dff'};
   border: none;
   border-radius: 8px;
 
@@ -19,4 +24,9 @@ export const Container = styled.button`
   font-size: 18px;
   line-height: 22px;
   text-align: center;
+
+  &:hover {
+    background-color: ${({ backgroundColor }) =>
+      shade(0.2, backgroundColor || '#377dff')};
+  }
 `;

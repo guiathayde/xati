@@ -18,6 +18,10 @@ interface Colors {
   signInCodePhoneNumber: {
     titleColor: string;
   };
+
+  profile: {
+    titleColor: string;
+  };
 }
 
 interface ColorModeContextData {
@@ -59,6 +63,9 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           signInCodePhoneNumber: {
             titleColor: '#243443',
           },
+          profile: {
+            titleColor: '#243443',
+          },
         }
       : {
           background: '#243443',
@@ -68,6 +75,9 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
             buttonBackground: '#E5F1FF',
           },
           signInCodePhoneNumber: {
+            titleColor: '#E5F1FF',
+          },
+          profile: {
             titleColor: '#E5F1FF',
           },
         };

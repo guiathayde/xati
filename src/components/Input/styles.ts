@@ -18,7 +18,7 @@ export const Container = styled.div<ContainerProps>`
         `
       : css`
           border-width: 1px;
-          border-color: #243443;
+          border-color: #aab0b7;
         `}
 
   border-radius: 10px;

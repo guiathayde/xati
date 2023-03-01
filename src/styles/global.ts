@@ -9,17 +9,23 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
+    position: absolute;
     display: flex;
-    align-items: center;
-    justify-content: center;
 
     width: 100vw;
-    height: 100vh;
+    height: 100%;
 
     background: #808080;
 
     color: #243443;
     -webkit-font-smoothing: antialiased;
+
+    #root {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   body, input, textarea, button {

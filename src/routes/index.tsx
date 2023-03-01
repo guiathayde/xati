@@ -4,6 +4,7 @@ import { PrivateRoute } from './PrivateRoute';
 
 import { SignIn } from '../pages/SignIn';
 import { SignInCodePhoneNumber } from '../pages/SignInCodePhoneNumber';
+import { Profile } from '../pages/Profile';
 import { Dashboard } from '../pages/Dashboard';
 
 export function Routes() {
@@ -15,6 +16,10 @@ export function Routes() {
       <Route path="/dashboard" element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
       </Route>
+      {/* <Route path="/profile" element={<PrivateRoute />}>
+        <Route path="/profile" element={<Profile />} />
+      </Route> */}
+      <Route path="/profile" element={<Profile />} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Switch>
