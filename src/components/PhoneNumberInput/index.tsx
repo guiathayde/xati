@@ -3,18 +3,22 @@ import { DefaultInputComponentProps } from 'react-phone-number-input';
 
 import {
   InputWithCountrySelect,
-  InputWithCountrySelectContainer,
+  InputWithoutCountrySelectContainer,
   InputWithoutCountrySelect,
+  IconButton,
 } from './styles';
 
 interface PhoneNumberInputProps extends DefaultInputComponentProps {
   containerStyle?: CSSProperties;
   hasCountrySelect?: boolean;
+
+  copyContentCallback?: () => void;
 }
 
 export function PhoneNumberInput({
   containerStyle,
   hasCountrySelect = false,
+  copyContentCallback,
   ...rest
 }: PhoneNumberInputProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -27,7 +31,7 @@ export function PhoneNumberInput({
       {...rest}
     />
   ) : (
-    <InputWithCountrySelectContainer
+    <InputWithoutCountrySelectContainer
       style={containerStyle}
       isFocused={isFocused}
     >
@@ -36,6 +40,12 @@ export function PhoneNumberInput({
         onBlur={() => setIsFocused(false)}
         {...rest}
       />
-    </InputWithCountrySelectContainer>
+
+      {copyContentCallback && (
+        <IconButton onClick={copyContentCallback}>
+          <i className="material-icons">content_copy</i>
+        </IconButton>
+      )}
+    </InputWithoutCountrySelectContainer>
   );
 }

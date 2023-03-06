@@ -7,6 +7,8 @@ import { BackButton } from '../../components/BackButton';
 import { Input } from '../../components/Input';
 import { PhoneNumberInput } from '../../components/PhoneNumberInput';
 import { RectangleButton } from '../../components/RectangleButton';
+import { ImageCropModal } from '../../components/ImageCropModal';
+import { SelectPhotoModal } from './components/SelectPhotoModal';
 
 import { Title, PhotoContainer, Photo, PhotoEditContainer } from './styles';
 
@@ -16,12 +18,19 @@ export function Profile() {
   const { colors } = useColorMode();
 
   const [photoUrl, setPhotoUrl] = useState('https://i.imgur.com/SMB38Jk.jpg');
+  const [isSelectPhotoModalOpen, setIsSelectPhotoModalOpen] = useState(false);
+  const [isImageCropModalOpen, setIsImageCropModalOpen] = useState(false);
+  const [croppedImageSource, setCroppedImageSource] = useState<string>();
 
-  function handleCapture(e: ChangeEvent<HTMLInputElement>) {
+  function handleSelectPhoto(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      const newUrl = URL.createObjectURL(file);
-      setPhotoUrl(newUrl);
+      const newPhotoUrl = URL.createObjectURL(file);
+      setPhotoUrl(newPhotoUrl);
+
+      setIsSelectPhotoModalOpen(false);
+
+      setIsImageCropModalOpen(true);
     }
   }
 
@@ -38,16 +47,12 @@ export function Profile() {
       <Title style={{ color: colors.profile.titleColor }}>Profile</Title>
 
       <PhotoContainer>
-        <Photo src={photoUrl} alt="Profile" />
-        <PhotoEditContainer htmlFor="profile-photo">
+        <Photo
+          src={croppedImageSource ? croppedImageSource : photoUrl}
+          alt="Profile"
+        />
+        <PhotoEditContainer onClick={() => setIsSelectPhotoModalOpen(true)}>
           <img src={EditIcon} alt="Edit" />
-          <input
-            id="profile-photo"
-            accept="image/*"
-            type="file"
-            capture="environment"
-            onChange={e => handleCapture(e)}
-          />
         </PhotoEditContainer>
       </PhotoContainer>
 
@@ -68,6 +73,9 @@ export function Profile() {
         value="+5516991635766"
         disabled
         onChange={() => {}}
+        copyContentCallback={() => {
+          navigator.clipboard.writeText('+5516991635766');
+        }}
       />
 
       <RectangleButton
@@ -76,6 +84,20 @@ export function Profile() {
       >
         Logout
       </RectangleButton>
+
+      <ImageCropModal
+        isImageCropModalOpen={isImageCropModalOpen}
+        setIsImageCropModalOpen={setIsImageCropModalOpen}
+        croppedImageSource={croppedImageSource}
+        setCroppedImageSource={setCroppedImageSource}
+        imgSource={photoUrl}
+      />
+
+      <SelectPhotoModal
+        isSelectPhotoModalOpen={isSelectPhotoModalOpen}
+        setIsSelectPhotoModalOpen={setIsSelectPhotoModalOpen}
+        handleSelectPhoto={handleSelectPhoto}
+      />
     </Container>
   );
 }

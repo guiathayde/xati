@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { shade } from 'polished';
+import { Styles as ModalStyles } from 'react-modal';
 
 export const Title = styled.h3`
   font-weight: 700;
@@ -67,3 +68,25 @@ export const PhotoEditContainer = styled.label`
     display: none;
   }
 `;
+
+export const selectPhotoModal: ModalStyles = {
+  overlay: {
+    maxWidth: 425,
+    height: '95%',
+    left: '50%',
+    top: '50%',
+    transform: 'translateX(-50%) translateY(-50%)',
+    backgroundColor: 'transparent',
+  },
+  content: {
+    display: 'flex',
+    justifyContent: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    maxWidth: 425,
+    maxHeight: '100%',
+    borderRadius: 12,
+  },
+};

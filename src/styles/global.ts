@@ -8,6 +8,11 @@ export const GlobalStyle = createGlobalStyle`
     outline: 0;
   }
 
+  html {
+    display: flex;
+    flex: 1;
+  }
+
   body {
     position: absolute;
     display: flex;
@@ -26,6 +31,18 @@ export const GlobalStyle = createGlobalStyle`
       align-items: center;
       justify-content: center;
     }
+
+    @keyframes animatebottom {
+    from {
+      bottom: -400px;
+      opacity: 0;
+    }
+
+    to {
+      bottom: 0;
+      opacity: 1;
+    }
+  }
   }
 
   body, input, textarea, button {

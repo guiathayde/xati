@@ -10,7 +10,9 @@ interface InputWithCountrySelectContainerProps {
   isFocused: boolean;
 }
 
-export const InputWithCountrySelect = styled(PhoneInputWithCountrySelect)<InputWithCountrySelectProps>`
+export const InputWithCountrySelect = styled(
+  PhoneInputWithCountrySelect,
+)<InputWithCountrySelectProps>`
   display: flex;
   align-items: center;
 
@@ -64,10 +66,18 @@ export const InputWithCountrySelect = styled(PhoneInputWithCountrySelect)<InputW
     &::placeholder {
       color: #aab0b7;
     }
+
+    &:disabled {
+      color: #243443;
+      opacity: 1;
+    }
   }
 `;
 
-export const InputWithCountrySelectContainer = styled.div<InputWithCountrySelectContainerProps>`
+export const InputWithoutCountrySelectContainer = styled.div<InputWithCountrySelectContainerProps>`
+  display: flex;
+  align-items: center;
+
   background: #fff;
   padding: 16px;
   width: 80%;
@@ -98,5 +108,27 @@ export const InputWithoutCountrySelect = styled(PhoneInputWithoutCountrySelect)`
 
   &::placeholder {
     color: #aab0b7;
+  }
+
+  &:disabled {
+    color: #243443;
+    opacity: 1;
+  }
+`;
+
+export const IconButton = styled.button`
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+
+  img {
+    width: 24px;
+    height: 24px;
   }
 `;

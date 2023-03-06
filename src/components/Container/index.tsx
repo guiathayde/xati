@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useWindowDimensions } from '../../hooks/windowDimensions';
 import { useColorMode } from '../../hooks/colorMode';
 
 import { Container as Div } from './styles';
@@ -8,13 +8,8 @@ interface ContainerProps {
 }
 
 export function Container({ children }: ContainerProps) {
+  const { isMobile } = useWindowDimensions();
   const { colors } = useColorMode();
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-  }, []);
 
   return (
     <Div isMobile={isMobile} backgroundColor={colors.background}>

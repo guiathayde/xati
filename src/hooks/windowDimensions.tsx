@@ -9,6 +9,7 @@ import {
 interface WindowDimensionsContextData {
   width: number;
   height: number;
+  isMobile: boolean;
 }
 
 const WindowDimensionsContext = createContext<WindowDimensionsContextData>(
@@ -24,6 +25,7 @@ export function WindowDimensionsProvider({
   const [windowDimensions, setWindowDimensions] = useState(
     getWindowDimensions(),
   );
+  const [isMobile, setIsMobile] = useState(false);
 
   function getWindowDimensions() {
     const { innerWidth: width, innerHeight: height } = window;
@@ -39,12 +41,18 @@ export function WindowDimensionsProvider({
     }
 
     window.addEventListener('resize', handleResize);
+
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
     <WindowDimensionsContext.Provider
-      value={{ width: windowDimensions.width, height: windowDimensions.height }}
+      value={{
+        width: windowDimensions.width,
+        height: windowDimensions.height,
+        isMobile,
+      }}
     >
       {children}
     </WindowDimensionsContext.Provider>
