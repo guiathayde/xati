@@ -22,6 +22,15 @@ interface Colors {
   profile: {
     titleColor: string;
   };
+
+  dashboard: {
+    boldTextColor: string;
+    chatContainerBottomBorderColor: string;
+    chatNameColor: string;
+    chatLastMessageColor: string;
+    chatLastMessageTimeColor: string;
+    chatArrowRightColor: string;
+  };
 }
 
 interface ColorModeContextData {
@@ -66,6 +75,14 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           profile: {
             titleColor: '#243443',
           },
+          dashboard: {
+            boldTextColor: '#243443',
+            chatContainerBottomBorderColor: '#243443',
+            chatNameColor: '#243443',
+            chatLastMessageColor: '#58616A',
+            chatLastMessageTimeColor: '#58616A',
+            chatArrowRightColor: '#243443',
+          },
         }
       : {
           background: '#243443',
@@ -79,6 +96,14 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           },
           profile: {
             titleColor: '#E5F1FF',
+          },
+          dashboard: {
+            boldTextColor: '#E5F1FF',
+            chatContainerBottomBorderColor: '#E5F1FF',
+            chatNameColor: '#E5F1FF',
+            chatLastMessageColor: '#E5F1FF',
+            chatLastMessageTimeColor: '#E5F1FF',
+            chatArrowRightColor: '#E5F1FF',
           },
         };
   }, [mode]);
