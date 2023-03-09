@@ -103,7 +103,7 @@ export const ChatContainer = styled(Link)`
 
   width: 100%;
 
-  border-bottom: 1px solid #f7f7f9;
+  border-bottom: 1px solid #e5e5e5;
 
   padding: 12px 24px;
 

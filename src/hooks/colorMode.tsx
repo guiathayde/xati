@@ -31,6 +31,10 @@ interface Colors {
     chatLastMessageTimeColor: string;
     chatArrowRightColor: string;
   };
+
+  addUser: {
+    titleColor: string;
+  };
 }
 
 interface ColorModeContextData {
@@ -77,11 +81,14 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           },
           dashboard: {
             boldTextColor: '#243443',
-            chatContainerBottomBorderColor: '#243443',
+            chatContainerBottomBorderColor: '#e5e5e5',
             chatNameColor: '#243443',
             chatLastMessageColor: '#58616A',
             chatLastMessageTimeColor: '#58616A',
             chatArrowRightColor: '#243443',
+          },
+          addUser: {
+            titleColor: '#243443',
           },
         }
       : {
@@ -104,6 +111,9 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
             chatLastMessageColor: '#E5F1FF',
             chatLastMessageTimeColor: '#E5F1FF',
             chatArrowRightColor: '#E5F1FF',
+          },
+          addUser: {
+            titleColor: '#E5F1FF',
           },
         };
   }, [mode]);
