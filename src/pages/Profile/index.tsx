@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
+import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
 
 import { Container } from '../../components/Container';
@@ -15,9 +16,11 @@ import { Title, PhotoContainer, Photo, PhotoEditContainer } from './styles';
 import EditIcon from '../../assets/pages/profile/edit.svg';
 
 export function Profile() {
+  const { user } = useAuth();
   const { colors } = useColorMode();
 
-  const [photoUrl, setPhotoUrl] = useState('https://i.imgur.com/SMB38Jk.jpg');
+  const [photoUrl, setPhotoUrl] = useState(user?.avatar);
+  const [name, setName] = useState(user?.name);
   const [isSelectPhotoModalOpen, setIsSelectPhotoModalOpen] = useState(false);
   const [isImageCropModalOpen, setIsImageCropModalOpen] = useState(false);
   const [croppedImageSource, setCroppedImageSource] = useState<string>();
@@ -60,6 +63,8 @@ export function Profile() {
         name="name"
         placeholder="Name"
         containerStyle={{ width: '80%', marginTop: 44 }}
+        value={name}
+        onChange={e => setName(e.target.value)}
       />
 
       <RectangleButton style={{ width: '80%', marginTop: 32 }}>
@@ -90,7 +95,7 @@ export function Profile() {
         setIsImageCropModalOpen={setIsImageCropModalOpen}
         croppedImageSource={croppedImageSource}
         setCroppedImageSource={setCroppedImageSource}
-        imgSource={photoUrl}
+        imgSource={photoUrl ? photoUrl : ''}
       />
 
       <SelectPhotoModal

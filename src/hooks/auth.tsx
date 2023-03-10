@@ -1,9 +1,8 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext } from 'react';
 
-interface User {
-  id: string;
-  email: string;
-}
+import { loggedUser as fakeLoggedUser } from '../fakedata/loggedUser';
+
+import { User } from '../interfaces/User';
 
 interface AuthContextData {
   user?: User;
@@ -16,13 +15,14 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | undefined>(() => {
+    if (process.env.NODE_ENV === 'development') return fakeLoggedUser;
 
-  useEffect(() => {
-    const user = localStorage.getItem("@Xati:user");
+    const userUpdated = localStorage.getItem('@Xati:user');
+    if (userUpdated != null) return JSON.parse(userUpdated);
 
-    if (user != null) setUser(JSON.parse(user));
-  }, []);
+    return undefined;
+  });
 
   return (
     <AuthContext.Provider
@@ -39,7 +39,7 @@ export function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return context;

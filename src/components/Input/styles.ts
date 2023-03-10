@@ -42,3 +42,27 @@ export const Container = styled.div<ContainerProps>`
     }
   }
 `;
+
+export const SendButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 8px;
+  padding: 8px;
+
+  background: transparent;
+
+  border: none;
+
+  width: 24px;
+  height: 24px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  i {
+    color: #aab0b7;
+  }
+`;

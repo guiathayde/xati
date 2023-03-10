@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
 
 import { Container } from '../../components/Container';
@@ -13,59 +15,28 @@ import {
   ChatContainer,
 } from './styles';
 
+import { Chat } from '../../interfaces/Chat';
+
+import { chats as fakeChats } from '../../fakedata/chats';
+
 export function Dashboard() {
+  const { user } = useAuth();
   const { colors } = useColorMode();
   const navigate = useNavigate();
 
-  const chats = [
-    {
-      id: 1,
-      name: 'Annette Black',
-      lastMessage: 'Hey, did you talk to her?',
-      lastMessageTime: '2min ago',
-      messagesUnread: 2,
-      profilePicture: 'https://source.unsplash.com/random/300x300/?face',
-    },
-    {
-      id: 2,
-      name: 'Cameron Williamson',
-      lastMessage: 'Ok, Cya.  🤗',
-      lastMessageTime: '35min ago',
-      messagesUnread: 0,
-      profilePicture: 'https://source.unsplash.com/random/300x300/?face',
-    },
-    {
-      id: 3,
-      name: 'Brennda Smily',
-      lastMessage: 'Sent a picture',
-      lastMessageTime: '1d ago',
-      messagesUnread: 3,
-      profilePicture: 'https://source.unsplash.com/random/300x300/?face',
-    },
-    {
-      id: 4,
-      name: 'Jane Cooper',
-      lastMessage: 'Thanks, ill call you there.',
-      lastMessageTime: '1d ago',
-      messagesUnread: 0,
-      profilePicture: 'https://source.unsplash.com/random/300x300/?face',
-    },
-    {
-      id: 5,
-      name: 'Jacob Jones',
-      lastMessage:
-        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      lastMessageTime: '2d ago',
-      messagesUnread: 0,
-      profilePicture: 'https://source.unsplash.com/random/300x300/?face',
-    },
-  ];
+  const [chats] = useState<Chat[]>(
+    process.env.NODE_ENV === 'development' ? fakeChats : [],
+  );
+
+  useEffect(() => {
+    if (!user) navigate('/signin');
+  }, [navigate, user]);
 
   return (
     <Container>
       <ProfileButton
-        src="https://i.imgur.com/SMB38Jk.jpg"
-        alt="Profile"
+        src={user?.avatar}
+        alt={user?.avatar}
         onClick={() => navigate('/profile')}
       />
 
@@ -73,7 +44,7 @@ export function Dashboard() {
         {chats.map(chat => (
           <ChatContainer
             key={chat.id}
-            to={'/chat'}
+            to={'/chat/' + chat.id}
             style={{
               borderBottomColor:
                 colors.dashboard.chatContainerBottomBorderColor,

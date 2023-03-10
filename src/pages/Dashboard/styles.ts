@@ -53,8 +53,8 @@ export const FloatingButton = styled.button`
   align-items: center;
   justify-content: center;
 
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
 
   background: #377dff;
@@ -71,7 +71,7 @@ export const FloatingButton = styled.button`
     align-items: center;
     justify-content: center;
 
-    font-size: 40px;
+    font-size: 32px;
 
     color: #fff;
   }

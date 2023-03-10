@@ -17,25 +17,38 @@ import {
   UserContact,
 } from './styles';
 
+import { User } from '../../interfaces/User';
+
+import { userToChat as fakeUserToAdd } from '../../fakedata/userToChat';
+
 export function AddUser() {
   const { colors } = useColorMode();
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userNotFound, setUserNotFound] = useState(false);
-  const [user, setUser] = useState<string>();
+  const [userToAdd, setUserToAdd] = useState<User>();
 
   const handleSearchUser = useCallback(() => {
     setUserNotFound(false);
 
-    if (phoneNumber.length > 0 && isValidPhoneNumber(phoneNumber)) {
-      console.log(phoneNumber);
-      // Search user by phone number
-      // If user not found, show UserNotFound
-      // If user found, show UserFound
-      setUser('user');
-    } else {
-      console.log('Invalid phone number');
-      setUserNotFound(true);
+    if (phoneNumber.length === 0) {
+      alert('Phone number is required');
+      return;
+    }
+
+    if (!isValidPhoneNumber(phoneNumber)) {
+      alert('Invalid phone number');
+      return;
+    }
+
+    // Search user by phone number
+    if (process.env.NODE_ENV === 'development') {
+      if (phoneNumber === fakeUserToAdd.id) {
+        setUserNotFound(false);
+        setUserToAdd(fakeUserToAdd);
+      } else {
+        setUserNotFound(true);
+      }
     }
   }, [phoneNumber]);
 
@@ -73,11 +86,11 @@ export function AddUser() {
         </UserNotFound>
       )}
 
-      {!userNotFound && user && (
+      {!userNotFound && userToAdd && (
         <UserContact>
-          <img src="https://i.imgur.com/SMB38Jk.jpg" alt="Profile User" />
+          <img src={userToAdd.avatar} alt={userToAdd.name} />
 
-          <span>Caio Affonso Athayde</span>
+          <span>{userToAdd.name}</span>
 
           <i className="material-icons">keyboard_arrow_right</i>
         </UserContact>

@@ -25,7 +25,7 @@ export function Routes() {
       <Route path="/profile" element={<Profile />} />
 
       <Route path="/add-user" element={<AddUser />} />
-      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:id" element={<Chat />} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Switch>
