@@ -5,11 +5,12 @@ import BackIcon from '../../assets/components/BackButton/back.svg';
 
 interface BackButtonProps {
   containerStyle?: CSSProperties;
+  onClick?: () => void;
 }
 
-export function BackButton({ containerStyle }: BackButtonProps) {
+export function BackButton({ containerStyle, onClick }: BackButtonProps) {
   return (
-    <Link to={'..'} style={containerStyle}>
+    <Link to={onClick ? '' : '..'} onClick={onClick} style={containerStyle}>
       <img src={BackIcon} alt="Back" />
     </Link>
   );

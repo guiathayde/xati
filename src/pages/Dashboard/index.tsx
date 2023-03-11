@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
@@ -17,20 +17,12 @@ import {
 
 import { Chat } from '../../interfaces/Chat';
 
-import { chats as fakeChats } from '../../fakedata/chats';
-
 export function Dashboard() {
   const { user } = useAuth();
   const { colors } = useColorMode();
   const navigate = useNavigate();
 
-  const [chats] = useState<Chat[]>(
-    process.env.NODE_ENV === 'development' ? fakeChats : [],
-  );
-
-  useEffect(() => {
-    if (!user) navigate('/signin');
-  }, [navigate, user]);
+  const [chats] = useState<Chat[]>([]);
 
   return (
     <Container>

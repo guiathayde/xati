@@ -1,8 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
 import { App } from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
+declare global {
+  interface Window {
+    recaptchaVerifier: any;
+  }
+}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,

@@ -1,6 +1,7 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
-import { loggedUser as fakeLoggedUser } from '../fakedata/loggedUser';
+import { firebase } from '../services/firebase';
 
 import { User } from '../interfaces/User';
 
@@ -15,14 +16,39 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | undefined>(() => {
-    if (process.env.NODE_ENV === 'development') return fakeLoggedUser;
+  const auth = getAuth(firebase);
 
+  const [user, setUser] = useState<User | undefined>(() => {
     const userUpdated = localStorage.getItem('@Xati:user');
     if (userUpdated != null) return JSON.parse(userUpdated);
 
     return undefined;
   });
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, loggedUser => {
+      if (loggedUser) {
+        const { displayName, email, photoURL, uid } = loggedUser;
+
+        const userUpdated = {
+          id: uid,
+          name: displayName,
+          email,
+          avatar: photoURL,
+        } as User;
+
+        localStorage.setItem('@Xati:user', JSON.stringify(userUpdated));
+
+        setUser(userUpdated);
+      } else {
+        setUser(undefined);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [auth]);
 
   return (
     <AuthContext.Provider

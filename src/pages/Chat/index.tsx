@@ -13,21 +13,14 @@ import { Header, UserName, UserImage, MessageList, Message } from './styles';
 import { User } from '../../interfaces/User';
 import { Message as MessageProps } from '../../interfaces/Message';
 
-import { userToChat as fakeUserToChat } from '../../fakedata/userToChat';
-import { messages as fakeMessages } from '../../fakedata/messages';
-
 export function Chat() {
   const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const { colors } = useColorMode();
 
-  const [userToChat] = useState<User | undefined>(
-    process.env.NODE_ENV === 'development' ? fakeUserToChat : undefined,
-  );
-  const [messages, setMessages] = useState<MessageProps[]>(
-    process.env.NODE_ENV === 'development' ? fakeMessages : [],
-  );
+  const [userToChat, setUserToChat] = useState<User | undefined>();
+  const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
   const handleSendMessage = useCallback(() => {
@@ -60,8 +53,10 @@ export function Chat() {
   );
 
   useEffect(() => {
-    if (!user) navigate('/signin');
-    else if (!id) navigate(-1);
+    if (!id) {
+      alert('You must select a user to chat.');
+      navigate(-1);
+    }
 
     // TODO - Fetch user from API
     // TODO - Fetch messages from API

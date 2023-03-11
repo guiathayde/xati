@@ -70,8 +70,6 @@ export function ImageCropModal({
           rotation,
         );
 
-        console.log('newCroppedImage:', newCroppedImage);
-
         if (newCroppedImage) {
           setCroppedImageSource(newCroppedImage);
           setIsCroppedImageModalOpen(true);

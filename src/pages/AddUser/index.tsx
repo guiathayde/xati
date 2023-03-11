@@ -19,8 +19,6 @@ import {
 
 import { User } from '../../interfaces/User';
 
-import { userToChat as fakeUserToAdd } from '../../fakedata/userToChat';
-
 export function AddUser() {
   const { colors } = useColorMode();
 
@@ -42,14 +40,6 @@ export function AddUser() {
     }
 
     // Search user by phone number
-    if (process.env.NODE_ENV === 'development') {
-      if (phoneNumber === fakeUserToAdd.id) {
-        setUserNotFound(false);
-        setUserToAdd(fakeUserToAdd);
-      } else {
-        setUserNotFound(true);
-      }
-    }
   }, [phoneNumber]);
 
   return (
