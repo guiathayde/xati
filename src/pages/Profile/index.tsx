@@ -1,4 +1,7 @@
 import { ChangeEvent, useState } from 'react';
+import { getAuth, signOut } from 'firebase/auth';
+
+import { firebase } from '../../services/firebase';
 
 import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
@@ -16,6 +19,8 @@ import { Title, PhotoContainer, Photo, PhotoEditContainer } from './styles';
 import EditIcon from '../../assets/pages/profile/edit.svg';
 
 export function Profile() {
+  const auth = getAuth(firebase);
+
   const { user } = useAuth();
   const { colors } = useColorMode();
 
@@ -86,6 +91,7 @@ export function Profile() {
       <RectangleButton
         backgroundColor="#FF4D4F"
         style={{ width: '80%', marginTop: 32 }}
+        onClick={async () => await signOut(auth)}
       >
         Logout
       </RectangleButton>
