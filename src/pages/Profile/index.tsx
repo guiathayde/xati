@@ -1,7 +1,4 @@
-import { ChangeEvent, useState } from 'react';
-import { getAuth, signOut } from 'firebase/auth';
-
-import { firebase } from '../../services/firebase';
+import { ChangeEvent, useCallback, useMemo, useState } from 'react';
 
 import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
@@ -13,22 +10,36 @@ import { PhoneNumberInput } from '../../components/PhoneNumberInput';
 import { RectangleButton } from '../../components/RectangleButton';
 import { ImageCropModal } from '../../components/ImageCropModal';
 import { SelectPhotoModal } from './components/SelectPhotoModal';
+import { LoadingModal } from '../../components/LoadingModal';
 
 import { Title, PhotoContainer, Photo, PhotoEditContainer } from './styles';
 
 import EditIcon from '../../assets/pages/profile/edit.svg';
 
+import profileDefaultLight from '../../assets/shared/profileDefaultLight.svg';
+import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
+
 export function Profile() {
-  const auth = getAuth(firebase);
+  const { user, updateProfileName, updateProfilePhoto, signOut } = useAuth();
+  const { mode, colors } = useColorMode();
 
-  const { user } = useAuth();
-  const { colors } = useColorMode();
-
-  const [photoUrl, setPhotoUrl] = useState(user?.avatar);
+  const [photoUrl, setPhotoUrl] = useState(user?.photoUrl);
   const [name, setName] = useState(user?.name);
+
   const [isSelectPhotoModalOpen, setIsSelectPhotoModalOpen] = useState(false);
   const [isImageCropModalOpen, setIsImageCropModalOpen] = useState(false);
   const [croppedImageSource, setCroppedImageSource] = useState<string>();
+
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  const profilePhotoUrl = useMemo(() => {
+    if (croppedImageSource) return croppedImageSource;
+
+    if (user && user.photoUrl && user.photoUrl.length > 0) return user.photoUrl;
+
+    if (mode === 'light') return profileDefaultLight;
+    return profileDefaultDark;
+  }, [croppedImageSource, mode, user]);
 
   function handleSelectPhoto(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -41,6 +52,35 @@ export function Profile() {
       setIsImageCropModalOpen(true);
     }
   }
+
+  const handleSaveProfile = useCallback(async () => {
+    setIsSavingProfile(true);
+
+    if (name && name !== user?.name && name.length > 0) {
+      const success = await updateProfileName(name);
+
+      if (success) {
+        setName(user?.name);
+      } else {
+        alert('Error updating profile name!');
+      }
+    }
+
+    if (croppedImageSource) {
+      const success = await updateProfilePhoto(croppedImageSource);
+
+      if (success) {
+        setPhotoUrl(user?.photoUrl);
+        setCroppedImageSource(undefined);
+      } else {
+        alert('Error updating profile photo!');
+      }
+    }
+
+    setIsSavingProfile(false);
+
+    alert('Profile updated!');
+  }, [croppedImageSource, name, updateProfileName, updateProfilePhoto, user]);
 
   return (
     <Container>
@@ -55,10 +95,7 @@ export function Profile() {
       <Title style={{ color: colors.profile.titleColor }}>Profile</Title>
 
       <PhotoContainer>
-        <Photo
-          src={croppedImageSource ? croppedImageSource : photoUrl}
-          alt="Profile"
-        />
+        <Photo src={profilePhotoUrl} alt="Profile" />
         <PhotoEditContainer onClick={() => setIsSelectPhotoModalOpen(true)}>
           <img src={EditIcon} alt="Edit" />
         </PhotoEditContainer>
@@ -72,7 +109,10 @@ export function Profile() {
         onChange={e => setName(e.target.value)}
       />
 
-      <RectangleButton style={{ width: '80%', marginTop: 32 }}>
+      <RectangleButton
+        onClick={async () => await handleSaveProfile()}
+        style={{ width: '80%', marginTop: 32 }}
+      >
         Save
       </RectangleButton>
 
@@ -91,7 +131,7 @@ export function Profile() {
       <RectangleButton
         backgroundColor="#FF4D4F"
         style={{ width: '80%', marginTop: 32 }}
-        onClick={async () => await signOut(auth)}
+        onClick={async () => await signOut()}
       >
         Logout
       </RectangleButton>
@@ -109,6 +149,8 @@ export function Profile() {
         setIsSelectPhotoModalOpen={setIsSelectPhotoModalOpen}
         handleSelectPhoto={handleSelectPhoto}
       />
+
+      <LoadingModal isOpen={isSavingProfile} setIsOpen={setIsSavingProfile} />
     </Container>
   );
 }

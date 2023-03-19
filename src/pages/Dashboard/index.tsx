@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
+import { useSocket } from '../../hooks/socket';
 import { useColorMode } from '../../hooks/colorMode';
+
+import { api } from '../../services/api';
 
 import { Container } from '../../components/Container';
 
@@ -15,20 +18,66 @@ import {
   ChatContainer,
 } from './styles';
 
-import { Chat } from '../../interfaces/Chat';
+import { User } from '../../interfaces/User';
+
+import profileDefaultLight from '../../assets/shared/profileDefaultLight.svg';
+import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
+
+interface Chat {
+  id: string;
+  users: User[];
+}
 
 export function Dashboard() {
   const { user } = useAuth();
-  const { colors } = useColorMode();
+  const { socket } = useSocket();
+  const { mode, colors } = useColorMode();
   const navigate = useNavigate();
 
-  const [chats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
+
+  const profileSrc = useMemo(() => {
+    if (user && user.photoUrl) return user.photoUrl;
+    if (mode === 'light') return profileDefaultLight;
+    return profileDefaultDark;
+  }, [mode, user]);
+
+  const profileUserToChatSrc = useCallback(
+    (userToChat: User) => {
+      if (userToChat && userToChat.photoUrl) return userToChat.photoUrl;
+      if (mode === 'light') return profileDefaultLight;
+      return profileDefaultDark;
+    },
+    [mode],
+  );
+
+  useEffect(() => {
+    if (user)
+      api
+        .get('/chat-rooms/user/' + user.id)
+        .then(response => {
+          setChats(response.data);
+        })
+        .catch(err => console.error(err));
+  }, [user]);
+
+  useEffect(() => {
+    function handleNewChat(newChat: Chat) {
+      setChats(oldChats => [...oldChats, newChat]);
+    }
+
+    socket.on('newChat', handleNewChat);
+
+    return () => {
+      socket.off('newChat', handleNewChat);
+    };
+  }, [socket]);
 
   return (
     <Container>
       <ProfileButton
-        src={user?.avatar}
-        alt={user?.avatar}
+        src={profileSrc}
+        alt={user?.name}
         onClick={() => navigate('/profile')}
       />
 
@@ -36,24 +85,24 @@ export function Dashboard() {
         {chats.map(chat => (
           <ChatContainer
             key={chat.id}
-            to={'/chat/' + chat.id}
+            to={'/chat/' + chat.users[0].id}
             style={{
               borderBottomColor:
                 colors.dashboard.chatContainerBottomBorderColor,
             }}
           >
-            <img src={chat.profilePicture} alt="Profile" />
+            <img src={profileUserToChatSrc(chat.users[0])} alt="Profile" />
 
             <div className="name-last-message">
               <span style={{ color: colors.dashboard.chatNameColor }}>
-                {chat.name}
+                {chat.users[0].name}
               </span>
               <p style={{ color: colors.dashboard.chatLastMessageColor }}>
-                {chat.lastMessage}
+                {chat.users[0].name}
               </p>
             </div>
 
-            <div className="time-last-message-new-message">
+            {/* <div className="time-last-message-new-message">
               <span
                 style={{
                   color: colors.dashboard.chatLastMessageTimeColor,
@@ -65,7 +114,7 @@ export function Dashboard() {
               {chat.messagesUnread > 0 && (
                 <div className="new-message">{chat.messagesUnread}</div>
               )}
-            </div>
+            </div> */}
 
             <i
               className="material-icons"

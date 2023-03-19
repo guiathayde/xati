@@ -15,6 +15,7 @@ export const Container = styled.div<ContainerProps>`
   width: 100vw;
   height: 100%;
   max-width: 425px;
+  max-height: 750vh;
 
   overflow: auto;
 

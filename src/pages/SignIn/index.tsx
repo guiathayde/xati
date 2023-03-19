@@ -1,47 +1,34 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isValidPhoneNumber } from 'react-phone-number-input';
-import {
-  getAuth,
-  RecaptchaVerifier,
-  useDeviceLanguage,
-  signInWithPhoneNumber,
-  ConfirmationResult,
-} from 'firebase/auth';
+import { RecaptchaVerifier } from 'firebase/auth';
 
-import { firebase } from '../../services/firebase';
+import { useAuth } from '../../hooks/auth';
 
 import { Container } from '../../components/Container';
 import { SignInWithPhone } from './components/SignInWithPhone';
 import { EnterPhoneNumber } from './components/EnterPhoneNumber';
 import { EnterCode } from './components/EnterCode';
+import { LoadingModal } from '../../components/LoadingModal';
 
 export function SignIn() {
+  const { auth, signInWithPhoneNumber, signInCodeConfirmation } = useAuth();
   const navigate = useNavigate();
 
   const [signInWithPhone, setSignInWithPhone] = useState(true);
   const [enterPhoneNumber, setEnterPhoneNumber] = useState(false);
   const [enterCode, setEnterCode] = useState(false);
 
-  const [appVerifier, setAppVerifier] = useState<RecaptchaVerifier>();
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult>();
+  const [isLoading, setIsLoading] = useState(false);
 
+  const [appVerifier, setAppVerifier] = useState<RecaptchaVerifier>();
   const [phoneNumber, setPhoneNumber] = useState<string>();
   const [code, setCode] = useState<string>();
 
-  const auth = getAuth(firebase);
-  useDeviceLanguage(auth);
-
   const signInWithPhoneOnClick = useCallback(() => {
-    if (appVerifier) {
-      setSignInWithPhone(false);
-      setEnterPhoneNumber(true);
-      setEnterCode(false);
-    } else {
-      alert('Please allow the reCAPTCHA');
-    }
-  }, [appVerifier]);
+    setSignInWithPhone(false);
+    setEnterPhoneNumber(true);
+    setEnterCode(false);
+  }, []);
 
   const enterPhoneNumberOnClickBack = useCallback(() => {
     setSignInWithPhone(true);
@@ -56,54 +43,34 @@ export function SignIn() {
   }, []);
 
   const onSendPhoneNumber = useCallback(async () => {
-    if (!appVerifier) {
-      alert('Please allow the reCAPTCHA');
-      return;
-    }
-    if (!phoneNumber || phoneNumber === '') {
-      alert('Please enter a phone number');
-      return;
-    }
-    if (!isValidPhoneNumber(phoneNumber)) {
-      alert('Please enter a valid phone number');
-      return;
-    }
+    setIsLoading(true);
 
-    try {
-      const confirmationResultUpdated = await signInWithPhoneNumber(
-        auth,
-        phoneNumber,
-        appVerifier,
-      );
+    const success = await signInWithPhoneNumber(appVerifier, phoneNumber);
 
-      setConfirmationResult(confirmationResultUpdated);
-
+    if (success) {
       setSignInWithPhone(false);
-      setEnterCode(true);
       setEnterPhoneNumber(false);
-    } catch (error) {
-      console.error(error);
+      setEnterCode(true);
+    } else {
+      alert('Please enter a valid phone number');
     }
-  }, [appVerifier, auth, phoneNumber]);
+
+    setIsLoading(false);
+  }, [signInWithPhoneNumber, appVerifier, phoneNumber]);
 
   const onSendCode = useCallback(async () => {
-    if (!confirmationResult) {
-      alert('Please enter a phone number');
-      return;
-    }
-    if (!code || code === '') {
-      alert('Please enter the code sent to your phone');
-      return;
-    }
+    setIsLoading(true);
 
-    try {
-      const result = await confirmationResult.confirm(code);
+    const result = await signInCodeConfirmation(code);
 
-      if (result.user.uid) navigate('/dashboard');
-    } catch (error) {
-      console.error(error);
+    if (result !== 'error') {
+      setIsLoading(false);
+      navigate(`/S${result}`);
+    } else {
+      setIsLoading(false);
+      alert('Please enter a valid code');
     }
-  }, [code, confirmationResult, navigate]);
+  }, [code, navigate, signInCodeConfirmation]);
 
   useEffect(() => {
     const reCaptchaVerifier = new RecaptchaVerifier(
@@ -111,8 +78,13 @@ export function SignIn() {
       { size: 'invisible' },
       auth,
     );
-    reCaptchaVerifier.render();
+    reCaptchaVerifier.verify();
+
     setAppVerifier(reCaptchaVerifier);
+
+    return () => {
+      reCaptchaVerifier.clear();
+    };
   }, [auth]);
 
   return (
@@ -135,6 +107,8 @@ export function SignIn() {
           onSendCode={onSendCode}
         />
       )}
+
+      <LoadingModal isOpen={isLoading} setIsOpen={setIsLoading} />
     </Container>
   );
 }

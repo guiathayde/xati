@@ -28,10 +28,10 @@ export function Routes() {
       </Route>
       {/* <Route path="/add-user" element={<AddUser />} /> */}
 
-      <Route path="/chat/:id" element={<PrivateRoute />}>
-        <Route path="/chat/:id" element={<Chat />} />
+      <Route path="/chat/:userToChatId" element={<PrivateRoute />}>
+        <Route path="/chat/:userToChatId" element={<Chat />} />
       </Route>
-      {/* <Route path="/chat/:id" element={<Chat />} /> */}
+      {/* <Route path="/chat/:userToChatId" element={<Chat />} /> */}
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Switch>

@@ -1,8 +1,18 @@
-import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import {
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
+import { useSocket } from '../../hooks/socket';
 import { useColorMode } from '../../hooks/colorMode';
+
+import { api } from '../../services/api';
 
 import { Container } from '../../components/Container';
 import { BackButton } from '../../components/BackButton';
@@ -13,15 +23,31 @@ import { Header, UserName, UserImage, MessageList, Message } from './styles';
 import { User } from '../../interfaces/User';
 import { Message as MessageProps } from '../../interfaces/Message';
 
+import profileDefaultLight from '../../assets/shared/profileDefaultLight.svg';
+import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
+import { ChatRoom } from '../../interfaces/ChatRoom';
+
 export function Chat() {
   const { user } = useAuth();
-  const { id } = useParams();
+  const { socket } = useSocket();
+  const { userToChatId } = useParams();
   const navigate = useNavigate();
-  const { colors } = useColorMode();
+  const { mode, colors } = useColorMode();
 
-  const [userToChat, setUserToChat] = useState<User | undefined>();
+  const [sentStartChat, setSentStartChat] = useState(false);
+  const [chatRoomId, setChatRoomId] = useState<string>();
+  const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [typingStatus, setTypingStatus] = useState('');
+
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+
+  const userToChatProfileSrc = useMemo(() => {
+    if (userToChat && userToChat.photoUrl) return userToChat.photoUrl;
+    if (mode === 'light') return profileDefaultLight;
+    return profileDefaultDark;
+  }, [mode, userToChat]);
 
   const handleSendMessage = useCallback(() => {
     if (!user) {
@@ -35,32 +61,72 @@ export function Chat() {
       return;
     }
 
-    const message: MessageProps = {
-      id: String(new Date().getTime()),
-      text: newMessage.trim(),
-      user,
-    };
+    socket.emit('message', {
+      chatRoomId,
+      senderId: user.id,
+      content: newMessage.trim(),
+    });
 
-    setMessages(oldMessages => [...oldMessages, message]);
     setNewMessage('');
-  }, [navigate, newMessage, user]);
+  }, [chatRoomId, navigate, newMessage, socket, user]);
 
   const handleOnKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
+      if (user && user.name && user.name.length > 0)
+        socket.emit('typing', `${user.name} is typing`);
+
       if (e.key === 'Enter') handleSendMessage();
     },
-    [handleSendMessage],
+    [handleSendMessage, socket, user],
   );
 
   useEffect(() => {
-    if (!id) {
-      alert('You must select a user to chat.');
-      navigate(-1);
+    api
+      .get(`/users/${userToChatId}`)
+      .then(response => {
+        setUserToChat(response.data);
+      })
+      .catch(err => console.error(err));
+  }, [userToChatId]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!sentStartChat && socket && user) {
+        socket.emit(
+          'startChat',
+          { userToChatId, userLoggedId: user.id },
+          (room: ChatRoom) => {
+            setChatRoomId(room.id);
+            setMessages(room.messages);
+          },
+        );
+
+        setSentStartChat(true);
+      }
+    }, 1500);
+
+    return () => clearTimeout(timeout);
+  }, [sentStartChat, socket, user, userToChatId]);
+
+  useEffect(() => {
+    function handleNewMessage(newMessage: MessageProps) {
+      setMessages(oldMessages => [...oldMessages, newMessage]);
     }
 
-    // TODO - Fetch user from API
-    // TODO - Fetch messages from API
-  }, [user, id, navigate]);
+    socket.on('message', handleNewMessage);
+
+    return () => {
+      socket.off('message', handleNewMessage);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    socket.on('typingResponse', data => setTypingStatus(data));
+  }, [socket]);
 
   return (
     <Container>
@@ -68,21 +134,23 @@ export function Chat() {
         <BackButton />
 
         <UserName style={{ color: colors.addUser.titleColor }}>
-          Annette Black
+          {userToChat?.name}
         </UserName>
 
-        <UserImage src={userToChat?.avatar} alt={userToChat?.name} />
+        <UserImage src={userToChatProfileSrc} alt={userToChat?.name} />
       </Header>
 
-      {messages.length > 0 && (
-        <MessageList>
+      {messages.length > 0 && user && (
+        <MessageList ref={lastMessageRef}>
           {messages.map(message => (
-            <Message key={message.id} isOwn={message.user.name === user?.name}>
-              {message.text.length > 0 ? message.text : '   '}
+            <Message key={message.id} isOwn={message.sender.id === user.id}>
+              {message.content.length > 0 ? message.content : '   '}
             </Message>
           ))}
         </MessageList>
       )}
+
+      {typingStatus.length > 0 && <p>{typingStatus}</p>}
 
       <Input
         name="message"

@@ -21,6 +21,7 @@ interface Colors {
 
   profile: {
     titleColor: string;
+    profileDefaultPhotoColor: string;
   };
 
   dashboard: {
@@ -38,6 +39,7 @@ interface Colors {
 }
 
 interface ColorModeContextData {
+  mode: 'light' | 'dark';
   toggleColorMode: () => void;
   colors: Colors;
 }
@@ -78,6 +80,7 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           },
           profile: {
             titleColor: '#243443',
+            profileDefaultPhotoColor: '#377DFF',
           },
           dashboard: {
             boldTextColor: '#243443',
@@ -103,6 +106,7 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
           },
           profile: {
             titleColor: '#E5F1FF',
+            profileDefaultPhotoColor: '#E5F1FF',
           },
           dashboard: {
             boldTextColor: '#E5F1FF',
@@ -119,7 +123,7 @@ export function ColorModeProvider({ children }: ColorModeProviderProps) {
   }, [mode]);
 
   return (
-    <ColorModeContext.Provider value={{ toggleColorMode, colors }}>
+    <ColorModeContext.Provider value={{ mode, toggleColorMode, colors }}>
       {children}
     </ColorModeContext.Provider>
   );
