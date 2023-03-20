@@ -46,6 +46,10 @@ export const MessageList = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
+  .reduce-margin {
+    margin: 2px 0;
+  }
 `;
 
 export const Message = styled.div<MessageProps>`
@@ -56,7 +60,7 @@ export const Message = styled.div<MessageProps>`
 
   max-width: 65%;
 
-  margin: 4px 0;
+  margin: 8px 0;
   padding: 8px 16px;
 
   border-radius: 8px;
@@ -67,4 +71,6 @@ export const Message = styled.div<MessageProps>`
   color: ${({ isOwn }) => (isOwn ? '#FFFFFF' : '#243443')};
 
   background-color: ${({ isOwn }) => (isOwn ? '#377DFF' : '#FFFFFF')};
+
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
 `;

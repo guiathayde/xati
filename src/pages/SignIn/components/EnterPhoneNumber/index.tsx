@@ -6,6 +6,7 @@ import { PhoneNumberInput } from '../../../../components/PhoneNumberInput';
 import { RectangleButton } from '../../../../components/RectangleButton';
 
 import { Title } from './styles';
+import { useCallback } from 'react';
 
 interface EnterPhoneNumberProps {
   onClickBack: () => void;
@@ -19,6 +20,13 @@ export function EnterPhoneNumber({
   onSendPhoneNumber,
 }: EnterPhoneNumberProps) {
   const { colors } = useColorMode();
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') onSendPhoneNumber();
+    },
+    [onSendPhoneNumber],
+  );
 
   return (
     <>
@@ -41,6 +49,9 @@ export function EnterPhoneNumber({
         hasCountrySelect
         placeholder="Enter phone number"
         onChange={setPhoneNumber}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+          handleKeyDown(e)
+        }
       />
 
       <RectangleButton

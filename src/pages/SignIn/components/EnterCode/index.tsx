@@ -6,6 +6,7 @@ import { Input } from '../../../../components/Input';
 import { RectangleButton } from '../../../../components/RectangleButton';
 
 import { Title } from './styles';
+import { useCallback } from 'react';
 
 interface EnterCodeProps {
   onClickBack: () => void;
@@ -21,6 +22,13 @@ export function EnterCode({
   onSendCode,
 }: EnterCodeProps) {
   const { colors } = useColorMode();
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') onSendCode();
+    },
+    [],
+  );
 
   return (
     <>
@@ -45,6 +53,7 @@ export function EnterCode({
         autoFocus
         maxLength={6}
         onChange={e => setCode(e.target.value)}
+        onKeyDown={e => handleKeyDown(e)}
         containerStyle={{
           width: '80%',
           marginTop: 32,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecaptchaVerifier } from 'firebase/auth';
+import { isPossiblePhoneNumber } from 'react-phone-number-input';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -44,6 +45,19 @@ export function SignIn() {
 
   const onSendPhoneNumber = useCallback(async () => {
     setIsLoading(true);
+
+    if (!appVerifier) {
+      alert('Please allow reCAPTCHA');
+      return;
+    }
+    if (!phoneNumber || phoneNumber === '') {
+      alert('Please enter a phone number');
+      return;
+    }
+    if (!isPossiblePhoneNumber(phoneNumber)) {
+      alert('Please enter a valid phone number');
+      return;
+    }
 
     const success = await signInWithPhoneNumber(appVerifier, phoneNumber);
 

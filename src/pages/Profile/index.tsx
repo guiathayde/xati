@@ -79,7 +79,7 @@ export function Profile() {
 
     setIsSavingProfile(false);
 
-    alert('Profile updated!');
+    window.location.reload();
   }, [croppedImageSource, name, updateProfileName, updateProfilePhoto, user]);
 
   return (

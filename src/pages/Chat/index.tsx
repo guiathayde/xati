@@ -17,15 +17,16 @@ import { api } from '../../services/api';
 import { Container } from '../../components/Container';
 import { BackButton } from '../../components/BackButton';
 import { Input } from '../../components/Input';
+import { LoadingModal } from '../../components/LoadingModal';
 
 import { Header, UserName, UserImage, MessageList, Message } from './styles';
 
 import { User } from '../../interfaces/User';
 import { Message as MessageProps } from '../../interfaces/Message';
+import { ChatRoom } from '../../interfaces/ChatRoom';
 
 import profileDefaultLight from '../../assets/shared/profileDefaultLight.svg';
 import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
-import { ChatRoom } from '../../interfaces/ChatRoom';
 
 export function Chat() {
   const { user } = useAuth();
@@ -34,12 +35,11 @@ export function Chat() {
   const navigate = useNavigate();
   const { mode, colors } = useColorMode();
 
-  const [sentStartChat, setSentStartChat] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [chatRoomId, setChatRoomId] = useState<string>();
   const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [typingStatus, setTypingStatus] = useState('');
 
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
@@ -81,32 +81,41 @@ export function Chat() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
+
     api
       .get(`/users/${userToChatId}`)
       .then(response => {
         setUserToChat(response.data);
+        setIsLoading(false);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.log(err);
+        setIsLoading(false);
+      });
   }, [userToChatId]);
 
   useEffect(() => {
+    setIsLoading(true);
+
     const timeout = setTimeout(() => {
-      if (!sentStartChat && socket && user) {
+      if (socket && user) {
         socket.emit(
           'startChat',
           { userToChatId, userLoggedId: user.id },
           (room: ChatRoom) => {
             setChatRoomId(room.id);
             setMessages(room.messages);
+            setIsLoading(false);
           },
         );
-
-        setSentStartChat(true);
       }
-    }, 1500);
 
-    return () => clearTimeout(timeout);
-  }, [sentStartChat, socket, user, userToChatId]);
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearInterval(timeout);
+  }, [socket, user, userToChatId]);
 
   useEffect(() => {
     function handleNewMessage(newMessage: MessageProps) {
@@ -124,10 +133,6 @@ export function Chat() {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  useEffect(() => {
-    socket.on('typingResponse', data => setTypingStatus(data));
-  }, [socket]);
-
   return (
     <Container>
       <Header>
@@ -142,15 +147,32 @@ export function Chat() {
 
       {messages.length > 0 && user && (
         <MessageList ref={lastMessageRef}>
-          {messages.map(message => (
-            <Message key={message.id} isOwn={message.sender.id === user.id}>
-              {message.content.length > 0 ? message.content : '   '}
-            </Message>
-          ))}
+          {messages.map(message => {
+            const isOwn = message.sender.id === user.id;
+
+            const beforeMessageIndex = messages.indexOf(message) - 1;
+            const nextMessageIndex = messages.indexOf(message) + 1;
+            let beforeMessage: MessageProps | undefined = undefined;
+            let nextMessage: MessageProps | undefined = undefined;
+            if (beforeMessageIndex >= 0)
+              beforeMessage = messages[messages.indexOf(message) - 1];
+            if (nextMessageIndex < messages.length)
+              nextMessage = messages[messages.indexOf(message) + 1];
+
+            let reduceMargin = '';
+            if (beforeMessage && beforeMessage.sender.id === message.sender.id)
+              reduceMargin = 'reduce-margin';
+            if (nextMessage && nextMessage.sender.id === message.sender.id)
+              reduceMargin = 'reduce-margin';
+
+            return (
+              <Message key={message.id} className={reduceMargin} isOwn={isOwn}>
+                {message.content.length > 0 ? message.content : '   '}
+              </Message>
+            );
+          })}
         </MessageList>
       )}
-
-      {typingStatus.length > 0 && <p>{typingStatus}</p>}
 
       <Input
         name="message"
@@ -163,6 +185,8 @@ export function Chat() {
         onSend={handleSendMessage}
         containerStyle={{ width: '90%', position: 'absolute', bottom: 16 }}
       />
+
+      <LoadingModal isOpen={isLoading} setIsOpen={setIsLoading} />
     </Container>
   );
 }

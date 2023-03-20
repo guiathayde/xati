@@ -18,7 +18,6 @@ import {
   RecaptchaVerifier,
   ConfirmationResult,
 } from 'firebase/auth';
-import { isValidPhoneNumber } from 'react-phone-number-input';
 
 import { api } from '../services/api';
 
@@ -33,8 +32,8 @@ interface AuthContextData {
   auth: Auth;
 
   signInWithPhoneNumber: (
-    appVerifier?: RecaptchaVerifier,
-    phoneNumber?: string,
+    appVerifier: RecaptchaVerifier,
+    phoneNumber: string,
   ) => Promise<boolean>;
   signInCodeConfirmation: (
     code: string | undefined,
@@ -64,70 +63,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
-
-  const signInWithPhoneNumber = useCallback(
-    async (appVerifier?: RecaptchaVerifier, phoneNumber?: string) => {
-      let success = false;
-
-      if (!appVerifier) {
-        alert('Please allow the reCAPTCHA');
-        return success;
-      }
-      if (!phoneNumber || phoneNumber === '') {
-        alert('Please enter a phone number');
-        return success;
-      }
-      if (!isValidPhoneNumber(phoneNumber)) {
-        alert('Please enter a valid phone number');
-        return success;
-      }
-
-      try {
-        const confirmationResultUpdated = await firebaseSignInWithPhoneNumber(
-          auth,
-          phoneNumber,
-          appVerifier,
-        );
-
-        setConfirmationResult(confirmationResultUpdated);
-
-        success = true;
-      } catch (error) {
-        console.error(error);
-        success = false;
-      }
-
-      return success;
-    },
-    [auth],
-  );
-
-  const signInCodeConfirmation = useCallback(
-    async (code: string | undefined) => {
-      if (!confirmationResult) {
-        alert('Please enter a phone number');
-        return 'error';
-      }
-      if (!code || code === '') {
-        alert('Please enter the code sent to your phone');
-        return 'error';
-      }
-
-      try {
-        const result = await confirmationResult.confirm(code);
-
-        if (result.user.uid)
-          if (result.user.displayName) return 'dashboard';
-          else return 'profile';
-
-        return 'error';
-      } catch (error) {
-        console.error(error);
-        return 'error';
-      }
-    },
-    [confirmationResult],
-  );
 
   const updateProfileInDatabaseAndLocal = useCallback(
     async (userUpdated: FirebaseUser) => {
@@ -159,6 +94,56 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     },
     [auth, socket],
+  );
+
+  const signInWithPhoneNumber = useCallback(
+    async (appVerifier: RecaptchaVerifier, phoneNumber: string) => {
+      try {
+        const confirmationResultUpdated = await firebaseSignInWithPhoneNumber(
+          auth,
+          phoneNumber,
+          appVerifier,
+        );
+
+        setConfirmationResult(confirmationResultUpdated);
+
+        return true;
+      } catch (error) {
+        console.log('firebaseSignInWithPhoneNumber', error);
+        return false;
+      }
+    },
+    [auth],
+  );
+
+  const signInCodeConfirmation = useCallback(
+    async (code: string | undefined) => {
+      if (!confirmationResult) {
+        alert('Please enter a phone number');
+        return 'error';
+      }
+      if (!code || code === '') {
+        alert('Please enter the code sent to your phone');
+        return 'error';
+      }
+
+      try {
+        const result = await confirmationResult.confirm(code);
+
+        if (result.user.uid) {
+          await updateProfileInDatabaseAndLocal(result.user);
+
+          if (result.user.displayName) return 'dashboard';
+          else return 'profile';
+        }
+
+        return 'error';
+      } catch (error) {
+        console.error(error);
+        return 'error';
+      }
+    },
+    [updateProfileInDatabaseAndLocal, confirmationResult],
   );
 
   const updateProfileName = useCallback(

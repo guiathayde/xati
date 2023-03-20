@@ -1,4 +1,4 @@
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, InputHTMLAttributes, useState } from 'react';
 import { DefaultInputComponentProps } from 'react-phone-number-input';
 
 import {
@@ -8,12 +8,15 @@ import {
   IconButton,
 } from './styles';
 
-interface PhoneNumberInputProps extends DefaultInputComponentProps {
+interface PhoneNumberInputType extends DefaultInputComponentProps {
   containerStyle?: CSSProperties;
   hasCountrySelect?: boolean;
 
   copyContentCallback?: () => void;
 }
+
+type PhoneNumberInputProps = PhoneNumberInputType &
+  Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>;
 
 export function PhoneNumberInput({
   containerStyle,

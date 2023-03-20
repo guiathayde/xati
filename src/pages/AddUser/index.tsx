@@ -72,7 +72,7 @@ export function AddUser() {
         }}
       />
 
-      <Title style={{ color: colors.addUser.titleColor }}>Profile</Title>
+      <Title style={{ color: colors.addUser.titleColor }}>Add User</Title>
 
       <InputField>
         <PhoneNumberInput
