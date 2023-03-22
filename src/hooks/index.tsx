@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 
+import { PromptInstallPWAProvider } from './promptInstallPWA';
 import { WindowDimensionsProvider } from './windowDimensions';
 import { ColorModeProvider } from './colorMode';
 import { SocketProvider } from './socket';
@@ -12,14 +13,16 @@ interface AppProviderProps {
 
 export function AppProvider({ children }: AppProviderProps) {
   return (
-    <WindowDimensionsProvider>
-      <ColorModeProvider>
-        <SocketProvider>
-          <FirebaseProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </FirebaseProvider>
-        </SocketProvider>
-      </ColorModeProvider>
-    </WindowDimensionsProvider>
+    <PromptInstallPWAProvider>
+      <WindowDimensionsProvider>
+        <ColorModeProvider>
+          <SocketProvider>
+            <FirebaseProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </FirebaseProvider>
+          </SocketProvider>
+        </ColorModeProvider>
+      </WindowDimensionsProvider>
+    </PromptInstallPWAProvider>
   );
 }

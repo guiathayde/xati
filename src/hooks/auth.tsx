@@ -109,7 +109,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         return true;
       } catch (error) {
-        console.log('firebaseSignInWithPhoneNumber', error);
+        console.error(error);
         return false;
       }
     },
