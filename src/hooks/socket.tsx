@@ -12,7 +12,13 @@ interface SocketProviderProps {
 const SocketContext = createContext<SocketContextData>({} as SocketContextData);
 
 export function SocketProvider({ children }: SocketProviderProps) {
-  const socket = useMemo(() => connect('http://localhost:3333'), []);
+  const socket = useMemo(() => {
+    const apiURL = process.env.REACT_APP_API_URL;
+
+    if (!apiURL) throw new Error('API URL is not defined');
+
+    return connect(apiURL, { secure: false });
+  }, []);
 
   return (
     <SocketContext.Provider value={{ socket }}>
