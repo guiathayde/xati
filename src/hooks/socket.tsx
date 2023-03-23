@@ -17,7 +17,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
 
     if (!apiURL) throw new Error('API URL is not defined');
 
-    return connect(apiURL, { secure: false });
+    return connect(apiURL);
   }, []);
 
   return (

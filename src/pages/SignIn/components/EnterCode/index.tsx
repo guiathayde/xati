@@ -27,7 +27,7 @@ export function EnterCode({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') onSendCode();
     },
-    [],
+    [onSendCode],
   );
 
   return (

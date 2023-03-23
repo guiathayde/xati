@@ -79,7 +79,7 @@ export function SignIn() {
 
     if (result !== 'error') {
       setIsLoading(false);
-      navigate(`/S${result}`);
+      navigate(`/${result}`);
     } else {
       setIsLoading(false);
       alert('Please enter a valid code');

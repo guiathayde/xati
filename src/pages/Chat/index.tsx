@@ -36,11 +36,13 @@ export function Chat() {
   const { mode, colors } = useColorMode();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [inputMessageHeight, setInputMessageHeight] = useState(0);
   const [chatRoomId, setChatRoomId] = useState<string>();
   const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
+  const inputMessageRef = useRef<HTMLInputElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
   const userToChatProfileSrc = useMemo(() => {
@@ -79,6 +81,12 @@ export function Chat() {
     },
     [handleSendMessage, socket, user],
   );
+
+  useEffect(() => {
+    if (inputMessageRef.current) {
+      setInputMessageHeight(inputMessageRef.current.offsetHeight);
+    }
+  }, [inputMessageRef]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -146,8 +154,8 @@ export function Chat() {
       </Header>
 
       {messages.length > 0 && user && (
-        <MessageList ref={lastMessageRef}>
-          {messages.map(message => {
+        <MessageList style={{ marginBottom: inputMessageHeight + 28 }}>
+          {messages.map((message, index) => {
             const isOwn = message.sender.id === user.id;
 
             const beforeMessageIndex = messages.indexOf(message) - 1;
@@ -166,7 +174,12 @@ export function Chat() {
               reduceMargin = 'reduce-margin';
 
             return (
-              <Message key={message.id} className={reduceMargin} isOwn={isOwn}>
+              <Message
+                key={message.id}
+                ref={index === messages.length - 1 ? lastMessageRef : null}
+                className={reduceMargin}
+                isOwn={isOwn}
+              >
                 {message.content.length > 0 ? message.content : '   '}
               </Message>
             );
@@ -175,10 +188,13 @@ export function Chat() {
       )}
 
       <Input
+        ref={inputMessageRef}
         name="message"
         placeholder="Message"
         hasSendButton
         autoCapitalize="sentences"
+        autoComplete="on"
+        spellCheck
         onKeyDown={e => handleOnKeyDown(e)}
         onChange={e => setNewMessage(e.target.value)}
         value={newMessage}

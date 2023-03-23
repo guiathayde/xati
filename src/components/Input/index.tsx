@@ -1,4 +1,9 @@
-import { InputHTMLAttributes, useRef, useState, CSSProperties } from 'react';
+import {
+  InputHTMLAttributes,
+  forwardRef,
+  useState,
+  CSSProperties,
+} from 'react';
 
 import { Container, SendButton } from './styles';
 
@@ -10,30 +15,24 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   onSend?: () => void;
 }
 
-export function Input({
-  name,
-  containerStyle,
-  hasSendButton = false,
-  onSend,
-  ...rest
-}: InputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export const Input = forwardRef<any, InputProps>(
+  ({ name, containerStyle, hasSendButton = false, onSend, ...rest }, ref) => {
+    const [isFocused, setIsFocused] = useState(false);
 
-  const [isFocused, setIsFocused] = useState(false);
-
-  return (
-    <Container style={containerStyle} isFocused={isFocused}>
-      <input
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        ref={inputRef}
-        {...rest}
-      />
-      {hasSendButton && (
-        <SendButton onClick={onSend}>
-          <i className="material-icons">send</i>
-        </SendButton>
-      )}
-    </Container>
-  );
-}
+    return (
+      <Container style={containerStyle} isFocused={isFocused}>
+        <input
+          ref={ref}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          {...rest}
+        />
+        {hasSendButton && (
+          <SendButton onClick={onSend}>
+            <i className="material-icons">send</i>
+          </SendButton>
+        )}
+      </Container>
+    );
+  },
+);
