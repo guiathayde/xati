@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RecaptchaVerifier } from 'firebase/auth';
-import { isPossiblePhoneNumber } from 'react-phone-number-input';
+import { PhoneNumberUtil } from 'google-libphonenumber';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -54,7 +54,14 @@ export function SignIn() {
       alert('Please enter a phone number');
       return;
     }
-    if (!isPossiblePhoneNumber(phoneNumber)) {
+
+    const phoneNumberUtil = PhoneNumberUtil.getInstance();
+    const phoneNumberInstance = phoneNumberUtil.parse(phoneNumber, 'BR');
+    const isValid = phoneNumberUtil.isValidNumberForRegion(
+      phoneNumberInstance,
+      'BR',
+    );
+    if (!isValid) {
       alert('Please enter a valid phone number');
       return;
     }

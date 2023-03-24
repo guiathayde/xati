@@ -11,10 +11,11 @@ import { GlobalStyle } from './styles/global';
 
 export function App() {
   useEffect(() => {
-    screen.orientation
-      .lock('portrait')
-      .then(() => console.log('Portrait mode locked'))
-      .catch(error => console.error(error));
+    if (screen.orientation)
+      screen.orientation
+        .lock('portrait')
+        .then(() => console.log('Portrait mode locked'))
+        .catch(error => console.error(error));
   }, []);
 
   return (

@@ -18,13 +18,25 @@
   "plugins": ["react", "react-hooks", "prettier"],
   "rules": {
     "prettier/prettier": "error",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/method-signature-style": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/prefer-optional-chain": "off",
+    "@typescript-eslint/prefer-ts-expect-error": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/consistent-type-assertions": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/return-await": "off",
     "@typescript-eslint/promise-function-async": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/consistent-type-imports": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-confusing-void-expression": "off",
+    "react/no-unescaped-entities": "off",
     "prefer-promise-reject-errors": "off",
+    "react/display-name": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-filename-extension": [
@@ -33,7 +45,9 @@
         "extensions": [".tsx"]
       }
     ],
+    "no-unneeded-ternary": "off",
     "no-use-before-define": "off",
+    "no-undef-init": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "react/react-in-jsx-scope": "off",
     "import/extensions": [
