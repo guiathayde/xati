@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/en';
+import 'dayjs/locale/pt-br';
 
 import { useAuth } from '../../hooks/auth';
 import { useSocket } from '../../hooks/socket';
+import { useTranslate } from '../../hooks/translate';
 import { useColorMode } from '../../hooks/colorMode';
 
 import { api } from '../../services/api';
@@ -19,6 +24,7 @@ import {
 } from './styles';
 
 import { User } from '../../interfaces/User';
+import { Message } from '../../interfaces/Message';
 
 import profileDefaultLight from '../../assets/shared/profileDefaultLight.svg';
 import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
@@ -26,13 +32,18 @@ import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
 interface Chat {
   id: string;
   users: User[];
+  messages: Message[];
 }
 
 export function Dashboard() {
   const { user } = useAuth();
   const { socket } = useSocket();
+  const { language } = useTranslate();
   const { mode, colors } = useColorMode();
   const navigate = useNavigate();
+
+  dayjs.locale(language === 'en' ? 'en' : 'pt-br');
+  dayjs.extend(relativeTime);
 
   const [chats, setChats] = useState<Chat[]>([]);
 
@@ -56,6 +67,7 @@ export function Dashboard() {
       api
         .get('/chat-rooms/user/' + user.id)
         .then(response => {
+          console.log(response.data);
           setChats(response.data);
         })
         .catch(err => console.error(err));
@@ -98,23 +110,23 @@ export function Dashboard() {
                 {chat.users[0].name}
               </span>
               <p style={{ color: colors.dashboard.chatLastMessageColor }}>
-                {chat.users[0].name}
+                {chat.messages[0].content}
               </p>
             </div>
 
-            {/* <div className="time-last-message-new-message">
+            <div className="time-last-message-new-message">
               <span
                 style={{
                   color: colors.dashboard.chatLastMessageTimeColor,
-                  marginBottom: chat.messagesUnread === 0 ? 'auto' : 0,
+                  // marginBottom: chat.messagesUnread === 0 ? 'auto' : 0,
                 }}
               >
-                {chat.lastMessageTime}
+                {dayjs(chat.messages[0].createdAt).fromNow()}
               </span>
-              {chat.messagesUnread > 0 && (
+              {/* {chat.messagesUnread > 0 && (
                 <div className="new-message">{chat.messagesUnread}</div>
-              )}
-            </div> */}
+              )} */}
+            </div>
 
             <i
               className="material-icons"
