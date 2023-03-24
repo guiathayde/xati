@@ -56,7 +56,7 @@ export function SignIn() {
     }
 
     const phoneNumberUtil = PhoneNumberUtil.getInstance();
-    const phoneNumberInstance = phoneNumberUtil.parse(phoneNumber, 'BR');
+    const phoneNumberInstance = phoneNumberUtil.parse(phoneNumber);
     const isValid = phoneNumberUtil.isValidNumberForRegion(
       phoneNumberInstance,
       'BR',
