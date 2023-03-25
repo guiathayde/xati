@@ -128,6 +128,9 @@ export function Chat() {
   useEffect(() => {
     function handleNewMessage(newMessage: MessageProps) {
       setMessages(oldMessages => [...oldMessages, newMessage]);
+
+      if (user && newMessage.sender.id !== user.id)
+        api.get(`/messages/read/${newMessage.id}`);
     }
 
     socket.on('message', handleNewMessage);
@@ -135,7 +138,7 @@ export function Chat() {
     return () => {
       socket.off('message', handleNewMessage);
     };
-  }, [socket]);
+  }, [user, socket]);
 
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -48,21 +48,21 @@ export function SignIn() {
 
     if (!appVerifier) {
       alert('Please allow reCAPTCHA');
+      setIsLoading(false);
       return;
     }
     if (!phoneNumber || phoneNumber === '') {
       alert('Please enter a phone number');
+      setIsLoading(false);
       return;
     }
 
-    const phoneNumberUtil = PhoneNumberUtil.getInstance();
-    const phoneNumberInstance = phoneNumberUtil.parse(phoneNumber);
-    const isValid = phoneNumberUtil.isValidNumberForRegion(
-      phoneNumberInstance,
-      'BR',
-    );
+    const phoneNumberInstance = PhoneNumberUtil.getInstance();
+    const phoneNumberParsed = phoneNumberInstance.parse(phoneNumber);
+    const isValid = phoneNumberInstance.isValidNumber(phoneNumberParsed);
     if (!isValid) {
       alert('Please enter a valid phone number');
+      setIsLoading(false);
       return;
     }
 

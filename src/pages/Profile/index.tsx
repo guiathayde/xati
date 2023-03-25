@@ -120,11 +120,11 @@ export function Profile() {
         name="phone"
         placeholder="Phone"
         containerStyle={{ width: '80%', marginTop: 44 }}
-        value="+5516991635766"
+        value={user?.phoneNumber}
         disabled
         onChange={() => {}}
         copyContentCallback={() => {
-          navigator.clipboard.writeText('+5516991635766');
+          if (user) navigator.clipboard.writeText(user.phoneNumber);
         }}
       />
 

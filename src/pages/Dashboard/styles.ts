@@ -123,7 +123,7 @@ export const ChatContainer = styled(Link)`
     flex-direction: column;
     justify-content: center;
 
-    margin-left: 8px;
+    margin-left: 12px;
     margin-right: auto;
 
     white-space: nowrap;
@@ -152,11 +152,19 @@ export const ChatContainer = styled(Link)`
     flex-direction: column;
     align-items: center;
 
+    max-width: 84px;
     height: 100%;
 
     margin-left: 8px;
 
     span {
+      max-width: 100%;
+
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
       font-weight: 500;
       font-size: 12px;
       line-height: 15px;
@@ -171,8 +179,8 @@ export const ChatContainer = styled(Link)`
       align-items: center;
       justify-content: center;
 
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
 
       margin-top: 6px;

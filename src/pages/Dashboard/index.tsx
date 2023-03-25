@@ -33,6 +33,7 @@ interface Chat {
   id: string;
   users: User[];
   messages: Message[];
+  totalMessagesUnread: number;
 }
 
 export function Dashboard() {
@@ -67,7 +68,6 @@ export function Dashboard() {
       api
         .get('/chat-rooms/user/' + user.id)
         .then(response => {
-          console.log(response.data);
           setChats(response.data);
         })
         .catch(err => console.error(err));
@@ -75,15 +75,32 @@ export function Dashboard() {
 
   useEffect(() => {
     function handleNewChat(newChat: Chat) {
+      console.log('handleNewChat', newChat);
       setChats(oldChats => [...oldChats, newChat]);
     }
 
+    function handleUpdateChat(updatedChat: Chat) {
+      console.log('handleUpdateChat', updatedChat);
+      setChats(oldChats =>
+        oldChats.map(chat => {
+          if (chat.id === updatedChat.id) return updatedChat;
+          return chat;
+        }),
+      );
+    }
+
     socket.on('newChat', handleNewChat);
+    socket.on('updateChat', handleUpdateChat);
 
     return () => {
       socket.off('newChat', handleNewChat);
+      socket.off('updateChat', handleUpdateChat);
     };
   }, [socket]);
+
+  useEffect(() => {
+    console.log('chats', chats);
+  }, [chats]);
 
   return (
     <Container>
@@ -93,50 +110,60 @@ export function Dashboard() {
         onClick={() => navigate('/profile')}
       />
 
-      <ChatList>
-        {chats.map(chat => (
-          <ChatContainer
-            key={chat.id}
-            to={'/chat/' + chat.users[0].id}
-            style={{
-              borderBottomColor:
-                colors.dashboard.chatContainerBottomBorderColor,
-            }}
-          >
-            <img src={profileUserToChatSrc(chat.users[0])} alt="Profile" />
-
-            <div className="name-last-message">
-              <span style={{ color: colors.dashboard.chatNameColor }}>
-                {chat.users[0].name}
-              </span>
-              <p style={{ color: colors.dashboard.chatLastMessageColor }}>
-                {chat.messages[0].content}
-              </p>
-            </div>
-
-            <div className="time-last-message-new-message">
-              <span
-                style={{
-                  color: colors.dashboard.chatLastMessageTimeColor,
-                  // marginBottom: chat.messagesUnread === 0 ? 'auto' : 0,
-                }}
-              >
-                {dayjs(chat.messages[0].createdAt).fromNow()}
-              </span>
-              {/* {chat.messagesUnread > 0 && (
-                <div className="new-message">{chat.messagesUnread}</div>
-              )} */}
-            </div>
-
-            <i
-              className="material-icons"
-              style={{ color: colors.dashboard.chatArrowRightColor }}
+      {chats.length > 0 && (
+        <ChatList>
+          {chats.map(chat => (
+            <ChatContainer
+              key={chat.id}
+              to={'/chat/' + chat.users[0].id}
+              style={{
+                borderBottomColor:
+                  colors.dashboard.chatContainerBottomBorderColor,
+              }}
             >
-              keyboard_arrow_right
-            </i>
-          </ChatContainer>
-        ))}
-      </ChatList>
+              <img src={profileUserToChatSrc(chat.users[0])} alt="Profile" />
+
+              <div className="name-last-message">
+                <span
+                  style={{
+                    color: colors.dashboard.chatNameColor,
+                  }}
+                >
+                  {chat.users[0].name}
+                </span>
+                {chat.messages.length > 0 && (
+                  <p style={{ color: colors.dashboard.chatLastMessageColor }}>
+                    {chat.messages[0].content}
+                  </p>
+                )}
+              </div>
+
+              <div className="time-last-message-new-message">
+                {chat.messages.length > 0 && chat.totalMessagesUnread > 0 && (
+                  <span
+                    style={{
+                      color: colors.dashboard.chatLastMessageTimeColor,
+                      marginBottom: chat.totalMessagesUnread === 0 ? 'auto' : 0,
+                    }}
+                  >
+                    {dayjs(chat.messages[0].createdAt).fromNow()}
+                  </span>
+                )}
+                {chat.totalMessagesUnread > 0 && (
+                  <div className="new-message">{chat.totalMessagesUnread}</div>
+                )}
+              </div>
+
+              <i
+                className="material-icons"
+                style={{ color: colors.dashboard.chatArrowRightColor }}
+              >
+                keyboard_arrow_right
+              </i>
+            </ChatContainer>
+          ))}
+        </ChatList>
+      )}
 
       {chats.length === 0 && (
         <>
