@@ -139,7 +139,7 @@ export function Dashboard() {
               </div>
 
               <div className="time-last-message-new-message">
-                {chat.messages.length > 0 && chat.totalMessagesUnread > 0 && (
+                {chat.messages.length > 0 && (
                   <span
                     style={{
                       color: colors.dashboard.chatLastMessageTimeColor,

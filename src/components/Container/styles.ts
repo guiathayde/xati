@@ -19,7 +19,7 @@ export const Container = styled.div<ContainerProps>`
 
   overflow: auto;
 
-  padding-bottom: 32px;
+  padding-bottom: 16px;
 
   background-color: ${({ backgroundColor }) => backgroundColor};
 

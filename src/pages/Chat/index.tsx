@@ -19,7 +19,14 @@ import { BackButton } from '../../components/BackButton';
 import { Input } from '../../components/Input';
 import { LoadingModal } from '../../components/LoadingModal';
 
-import { Header, UserName, UserImage, MessageList, Message } from './styles';
+import {
+  Header,
+  UserName,
+  UserImage,
+  MessageList,
+  Message,
+  Typing,
+} from './styles';
 
 import { User } from '../../interfaces/User';
 import { Message as MessageProps } from '../../interfaces/Message';
@@ -36,11 +43,11 @@ export function Chat() {
   const { mode, colors } = useColorMode();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [inputMessageHeight, setInputMessageHeight] = useState(0);
   const [chatRoomId, setChatRoomId] = useState<string>();
   const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [typingName, setTypingName] = useState('');
 
   const inputMessageRef = useRef<HTMLInputElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
@@ -72,21 +79,57 @@ export function Chat() {
     setNewMessage('');
   }, [chatRoomId, navigate, newMessage, socket, user]);
 
-  const handleOnKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (user && user.name && user.name.length > 0)
-        socket.emit('typing', `${user.name} is typing`);
+  const handleOnChengeInputMessage = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
 
-      if (e.key === 'Enter') handleSendMessage();
+      setNewMessage(value);
     },
-    [handleSendMessage, socket, user],
+    [],
   );
 
-  useEffect(() => {
-    if (inputMessageRef.current) {
-      setInputMessageHeight(inputMessageRef.current.offsetHeight);
-    }
-  }, [inputMessageRef]);
+  const handleOnKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') handleSendMessage();
+    },
+    [handleSendMessage],
+  );
+
+  const renderMessages = useCallback(
+    (message: MessageProps, index: number) => {
+      const isOwn = user ? message.sender.id === user.id : false;
+
+      const beforeMessageIndex = messages.indexOf(message) - 1;
+      const nextMessageIndex = messages.indexOf(message) + 1;
+      let beforeMessage: MessageProps | undefined = undefined;
+      let nextMessage: MessageProps | undefined = undefined;
+      if (beforeMessageIndex >= 0)
+        beforeMessage = messages[messages.indexOf(message) - 1];
+      if (nextMessageIndex < messages.length)
+        nextMessage = messages[messages.indexOf(message) + 1];
+
+      let reduceMarginTop = '';
+      let reduceMarginBottom = '';
+      if (beforeMessage && beforeMessage.sender.id === message.sender.id)
+        reduceMarginTop = 'reduce-margin-top';
+      if (nextMessage && nextMessage.sender.id === message.sender.id)
+        reduceMarginBottom = 'reduce-margin-bottom';
+
+      const reduceMargin = `${reduceMarginTop} ${reduceMarginBottom}`;
+
+      return (
+        <Message
+          key={message.id}
+          ref={index === messages.length - 1 ? lastMessageRef : null}
+          className={reduceMargin}
+          isOwn={isOwn}
+        >
+          {message.content.length > 0 ? message.content : '   '}
+        </Message>
+      );
+    },
+    [user, messages],
+  );
 
   useEffect(() => {
     setIsLoading(true);
@@ -133,12 +176,38 @@ export function Chat() {
         api.get(`/messages/read/${newMessage.id}`);
     }
 
+    function handleTyping(data: {
+      senderId: string;
+      senderName: string;
+      content: string;
+    }) {
+      console.log('typing - receive', data);
+      console.log('typing boolean:', user && data.senderId !== user.id);
+      if (user && data.senderId !== user.id) {
+        if (data.content.length === 0) setTypingName('');
+        else setTypingName(data.senderName);
+      }
+    }
+
     socket.on('message', handleNewMessage);
+    socket.on('typing', handleTyping);
 
     return () => {
       socket.off('message', handleNewMessage);
+      socket.off('typing', handleTyping);
     };
   }, [user, socket]);
+
+  useEffect(() => {
+    if (user && socket && chatRoomId) {
+      socket.emit('typing', {
+        chatRoomId,
+        senderId: user.id,
+        senderName: user.name?.split(' ')[0],
+        content: newMessage,
+      });
+    }
+  }, [user, socket, chatRoomId, newMessage]);
 
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -157,38 +226,10 @@ export function Chat() {
       </Header>
 
       {messages.length > 0 && user && (
-        <MessageList style={{ marginBottom: inputMessageHeight + 28 }}>
-          {messages.map((message, index) => {
-            const isOwn = message.sender.id === user.id;
-
-            const beforeMessageIndex = messages.indexOf(message) - 1;
-            const nextMessageIndex = messages.indexOf(message) + 1;
-            let beforeMessage: MessageProps | undefined = undefined;
-            let nextMessage: MessageProps | undefined = undefined;
-            if (beforeMessageIndex >= 0)
-              beforeMessage = messages[messages.indexOf(message) - 1];
-            if (nextMessageIndex < messages.length)
-              nextMessage = messages[messages.indexOf(message) + 1];
-
-            let reduceMargin = '';
-            if (beforeMessage && beforeMessage.sender.id === message.sender.id)
-              reduceMargin = 'reduce-margin';
-            if (nextMessage && nextMessage.sender.id === message.sender.id)
-              reduceMargin = 'reduce-margin';
-
-            return (
-              <Message
-                key={message.id}
-                ref={index === messages.length - 1 ? lastMessageRef : null}
-                className={reduceMargin}
-                isOwn={isOwn}
-              >
-                {message.content.length > 0 ? message.content : '   '}
-              </Message>
-            );
-          })}
-        </MessageList>
+        <MessageList>{messages.map(renderMessages)}</MessageList>
       )}
+
+      {typingName.length > 0 && <Typing>{typingName} is typing...</Typing>}
 
       <Input
         ref={inputMessageRef}
@@ -198,11 +239,16 @@ export function Chat() {
         autoCapitalize="sentences"
         autoComplete="on"
         spellCheck
-        onKeyDown={e => handleOnKeyDown(e)}
-        onChange={e => setNewMessage(e.target.value)}
+        onKeyDown={handleOnKeyDown}
+        onChange={handleOnChengeInputMessage}
         value={newMessage}
         onSend={handleSendMessage}
-        containerStyle={{ width: '90%', position: 'absolute', bottom: 16 }}
+        containerStyle={{
+          width: '90%',
+          // position: 'absolute',
+          // bottom: 16,
+          marginTop: 'auto',
+        }}
       />
 
       <LoadingModal isOpen={isLoading} setIsOpen={setIsLoading} />
