@@ -24,7 +24,7 @@ export function IOSInstallPromptProvider({
   const isIOS = useCallback(() => {
     // @ts-ignore
     if (navigator.standalone) {
-      //user has already installed the app
+      // user has already installed the app
       return false;
     }
 

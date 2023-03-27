@@ -131,6 +131,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const result = await confirmationResult.confirm(code);
 
         if (result.user.uid) {
+          const token = await result.user.getIdToken();
+          localStorage.setItem('@Xati:token', token);
+          api.defaults.headers.authorization = `Bearer ${token}`;
+
           await updateProfileInDatabaseAndLocal(result.user);
 
           if (result.user.displayName) return 'dashboard';
@@ -217,6 +221,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await firebaseSignOut(auth);
 
+      localStorage.removeItem('@Xati:token');
       setUser(undefined);
     } catch (error) {
       console.error(error);
@@ -229,6 +234,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const unsubscribe = onAuthStateChanged(auth, async loggedUser => {
       if (loggedUser) {
+        const token = await loggedUser.getIdToken();
+        localStorage.setItem('@Xati:token', token);
+        api.defaults.headers.authorization = `Bearer ${token}`;
+
         await updateProfileInDatabaseAndLocal(loggedUser);
 
         setLoading(false);

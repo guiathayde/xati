@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
+import { InjectAxiosInterceptors } from './pages/InjectAxiosInterceptors';
 import { PromptInstallPWA } from './pages/PromptInstallPWA';
 
 import { Routes } from './routes';
@@ -11,7 +12,7 @@ import { GlobalStyle } from './styles/global';
 
 export function App() {
   useEffect(() => {
-    if (screen.orientation)
+    if (screen.orientation.lock)
       screen.orientation
         .lock('portrait')
         .then(() => console.log('Portrait mode locked'))
@@ -21,6 +22,7 @@ export function App() {
   return (
     <BrowserRouter>
       <AppProvider>
+        <InjectAxiosInterceptors />
         <PromptInstallPWA />
 
         <Routes />

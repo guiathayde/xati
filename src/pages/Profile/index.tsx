@@ -1,4 +1,5 @@
 import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
@@ -22,6 +23,7 @@ import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
 export function Profile() {
   const { user, updateProfileName, updateProfilePhoto, signOut } = useAuth();
   const { mode, colors } = useColorMode();
+  const navigate = useNavigate();
 
   const [photoUrl, setPhotoUrl] = useState(user?.photoUrl);
   const [name, setName] = useState(user?.name);
@@ -90,6 +92,7 @@ export function Profile() {
           top: 32,
           left: 32,
         }}
+        onClick={() => navigate('/dashboard')}
       />
 
       <Title style={{ color: colors.profile.titleColor }}>Profile</Title>
