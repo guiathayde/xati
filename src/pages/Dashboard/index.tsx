@@ -74,13 +74,16 @@ export function Dashboard() {
   }, [user]);
 
   useEffect(() => {
+    if (user)
+      socket.emit('updateIsOnline', {
+        userId: user.id,
+        isOnline: true,
+      });
+
     function handleNewChat(newChat: Chat) {
-      console.log('handleNewChat', newChat);
       setChats(oldChats => [...oldChats, newChat]);
     }
-
     function handleUpdateChat(updatedChat: Chat) {
-      console.log('handleUpdateChat', updatedChat);
       setChats(oldChats =>
         oldChats.map(chat => {
           if (chat.id === updatedChat.id) return updatedChat;
@@ -96,7 +99,7 @@ export function Dashboard() {
       socket.off('newChat', handleNewChat);
       socket.off('updateChat', handleUpdateChat);
     };
-  }, [socket]);
+  }, [socket, user]);
 
   return (
     <Container>

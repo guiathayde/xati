@@ -6,4 +6,5 @@ export interface User {
   photoId?: string;
   photoUrl?: string;
   phoneNumber: string;
+  isOnline: boolean;
 }

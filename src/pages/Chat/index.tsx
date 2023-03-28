@@ -23,6 +23,7 @@ import { LoadingModal } from '../../components/LoadingModal';
 import {
   Header,
   UserName,
+  UserStatus,
   UserImage,
   MessageList,
   Message,
@@ -49,6 +50,7 @@ export function Chat() {
   const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isOnline, setIsOnline] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const inputMessageRef = useRef<HTMLInputElement>(null);
@@ -136,27 +138,17 @@ export function Chat() {
   useEffect(() => {
     setIsLoading(true);
 
-    api
-      .get(`/users/${userToChatId}`)
-      .then(response => {
-        setUserToChat(response.data);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setIsLoading(false);
-      });
-  }, [userToChatId]);
-
-  useEffect(() => {
-    setIsLoading(true);
-
     const timeout = setTimeout(() => {
-      if (socket && user) {
+      if (socket && user && userToChatId) {
         socket.emit(
           'startChat',
           { userToChatId, userLoggedId: user.id },
           (room: ChatRoom) => {
+            const userToChat = room.users.find(u => user.id !== u.id);
+
+            if (userToChat) setIsOnline(userToChat.isOnline);
+
+            setUserToChat(userToChat);
             setChatRoomId(room.id);
             setMessages(room.messages);
             setIsLoading(false);
@@ -171,23 +163,32 @@ export function Chat() {
   }, [socket, user, userToChatId]);
 
   useEffect(() => {
+    function handleUserToChatStatus(data: {
+      userId: string;
+      isOnline: boolean;
+    }) {
+      if (user && data.userId !== user.id) {
+        setIsOnline(data.isOnline);
+      }
+    }
     function handleNewMessage(newMessage: MessageProps) {
       setMessages(oldMessages => [...oldMessages, newMessage]);
 
       if (user && newMessage.sender.id !== user.id)
         api.get(`/messages/read/${newMessage.id}`);
     }
-
     function handleTyping(data: { senderId: string; content: string }) {
       if (user && data.senderId !== user.id) {
         setIsTyping(data.content.length > 0);
       }
     }
 
+    socket.on('userToChatStatus', handleUserToChatStatus);
     socket.on('message', handleNewMessage);
     socket.on('typing', handleTyping);
 
     return () => {
+      socket.off('userToChatStatus', handleUserToChatStatus);
       socket.off('message', handleNewMessage);
       socket.off('typing', handleTyping);
     };
@@ -212,9 +213,24 @@ export function Chat() {
       <Header>
         <BackButton />
 
-        <UserName style={{ color: colors.addUser.titleColor }}>
-          {userToChat?.name}
-        </UserName>
+        <div className="name-status">
+          <UserName style={{ color: colors.addUser.titleColor }}>
+            {userToChat?.name}
+          </UserName>
+
+          {!isTyping && (
+            <UserStatus>
+              {!isTyping && isOnline ? (
+                <div className="online" />
+              ) : (
+                <div className="offline" />
+              )}
+              {!isTyping && isOnline ? 'online' : 'offline'}
+            </UserStatus>
+          )}
+
+          {isTyping && <Typing>{strings.chat.typing}</Typing>}
+        </div>
 
         <UserImage src={userToChatProfileSrc} alt={userToChat?.name} />
       </Header>
@@ -222,8 +238,6 @@ export function Chat() {
       {messages.length > 0 && user && (
         <MessageList>{messages.map(renderMessages)}</MessageList>
       )}
-
-      {isTyping && <Typing>{strings.chat.typing}</Typing>}
 
       <Input
         ref={inputMessageRef}

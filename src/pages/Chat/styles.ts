@@ -12,6 +12,15 @@ export const Header = styled.div`
   width: 100%;
 
   padding: 32px 32px 16px 32px;
+
+  .name-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    margin: 0 auto;
+  }
 `;
 
 export const UserName = styled.h3`
@@ -20,8 +29,35 @@ export const UserName = styled.h3`
   line-height: 19px;
   text-align: center;
   color: #243443;
+`;
 
-  margin: 0 auto;
+export const UserStatus = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+  color: #243443;
+
+  .online {
+    background-color: #00b87c;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .offline {
+    background-color: #ff0000;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
 `;
 
 export const UserImage = styled.img`
@@ -83,7 +119,7 @@ export const Message = styled.div<MessageProps>`
 `;
 
 export const Typing = styled.p`
-  align-self: flex-start;
-  margin: 0 0 4px 24px;
+  align-self: center;
+  font-size: 14px;
   color: #243443;
 `;

@@ -73,6 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           name: userUpdated.displayName || '',
           email: userUpdated.email || '',
           phoneNumber: userUpdated.phoneNumber || '',
+          isOnline: true,
         };
 
         const response = await api.post(
@@ -248,6 +249,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
       unsubscribe();
     };
   }, [auth, updateProfileInDatabaseAndLocal]);
+
+  useEffect(() => {
+    function setOfflineStatus() {
+      if (user)
+        socket.emit('updateIsOnline', {
+          userId: user.id,
+          isOnline: false,
+        });
+    }
+
+    function handleBeforeUnload() {
+      // código para executar antes do usuário sair do site
+      setOfflineStatus();
+    }
+
+    function handleBlur() {
+      // código para executar quando o usuário desfoca o site
+      setOfflineStatus();
+    }
+
+    function handleFocus() {
+      // código para executar quando o usuário foca o site
+      if (user)
+        socket.emit('updateIsOnline', {
+          userId: user.id,
+          isOnline: true,
+        });
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, socket]);
 
   return (
     <AuthContext.Provider
