@@ -3,9 +3,10 @@ import Cropper from 'react-easy-crop';
 import { Point, Area } from 'react-easy-crop/types';
 import Modal from 'react-modal';
 
-import { useWindowDimensions } from '../../hooks/windowDimensions';
+import { useWindowDimensions } from '../../../../hooks/windowDimensions';
+import { useTranslate } from '../../../../hooks/translate';
 
-import { RectangleButton } from '../RectangleButton';
+import { RectangleButton } from '../../../../components/RectangleButton';
 
 import { getCroppedImg } from './getCroppedImg';
 
@@ -42,6 +43,7 @@ export function ImageCropModal({
   const windowDimensions = useWindowDimensions();
   const windowWidth = windowDimensions.width;
   const isMobile = windowDimensions.isMobile;
+  const { strings } = useTranslate();
 
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -124,7 +126,9 @@ export function ImageCropModal({
               />
             </SliderField>
             <SliderField>
-              <label htmlFor="rotation">Rotation</label>
+              <label htmlFor="rotation">
+                {strings.profile.imageCropModal.rotation}
+              </label>
               <Slider
                 name="rotation"
                 type="range"
@@ -143,13 +147,13 @@ export function ImageCropModal({
                 style={{ width: '45%' }}
                 onClick={() => setIsImageCropModalOpen(false)}
               >
-                Cancel
+                {strings.profile.imageCropModal.cancel}
               </RectangleButton>
               <RectangleButton
                 style={{ width: '45%' }}
                 onClick={async () => await showCroppedImage()}
               >
-                Continue
+                {strings.profile.imageCropModal.continue}
               </RectangleButton>
             </Buttons>
           </Controls>
@@ -187,7 +191,7 @@ export function ImageCropModal({
             setIsImageCropModalOpen(false);
           }}
         >
-          Save
+          {strings.profile.imageCropModal.save}
         </RectangleButton>
         <RectangleButton
           backgroundColor="#FF4D4F"
@@ -196,7 +200,7 @@ export function ImageCropModal({
             setIsCroppedImageModalOpen(false);
           }}
         >
-          Back
+          {strings.profile.imageCropModal.back}
         </RectangleButton>
       </Modal>
     </>

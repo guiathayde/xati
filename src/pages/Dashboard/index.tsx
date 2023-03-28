@@ -39,7 +39,7 @@ interface Chat {
 export function Dashboard() {
   const { user } = useAuth();
   const { socket } = useSocket();
-  const { language } = useTranslate();
+  const { language, strings } = useTranslate();
   const { mode, colors } = useColorMode();
   const navigate = useNavigate();
 
@@ -97,10 +97,6 @@ export function Dashboard() {
       socket.off('updateChat', handleUpdateChat);
     };
   }, [socket]);
-
-  useEffect(() => {
-    console.log('chats', chats);
-  }, [chats]);
 
   return (
     <Container>
@@ -177,7 +173,7 @@ export function Dashboard() {
               transform: 'translate(-50%, -50%)',
             }}
           >
-            No chat found
+            {strings.dashboard.noChatFound}
           </BoldText>
 
           <BoldText
@@ -189,7 +185,7 @@ export function Dashboard() {
               left: 144,
             }}
           >
-            Find users here
+            {strings.dashboard.findUsersHere}
           </BoldText>
           <ArrowRight>
             <i

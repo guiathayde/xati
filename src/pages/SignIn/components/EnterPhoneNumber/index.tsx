@@ -1,4 +1,5 @@
 import { useColorMode } from '../../../../hooks/colorMode';
+import { useTranslate } from '../../.././../hooks/translate';
 
 import { BackButton } from '../../../../components/BackButton';
 import { LogoText } from '../../../../components/LogoText';
@@ -20,6 +21,7 @@ export function EnterPhoneNumber({
   onSendPhoneNumber,
 }: EnterPhoneNumberProps) {
   const { colors } = useColorMode();
+  const { strings } = useTranslate();
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -42,12 +44,14 @@ export function EnterPhoneNumber({
       <LogoText containerStyle={{ marginTop: 16 }} />
 
       <Title style={{ color: colors.signInCodePhoneNumber.titleColor }}>
-        Continue with phone number
+        {strings.signin.enterPhoneNumber.title}
       </Title>
 
       <PhoneNumberInput
         hasCountrySelect
-        placeholder="Enter phone number"
+        placeholder={
+          strings.signin.enterPhoneNumber.phoneNumberInputPlaceholder
+        }
         onChange={setPhoneNumber}
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
           handleKeyDown(e)
@@ -58,7 +62,7 @@ export function EnterPhoneNumber({
         onClick={async () => await onSendPhoneNumber()}
         style={{ width: '80%', marginTop: 'auto', marginBottom: 'auto' }}
       >
-        Continue
+        {strings.signin.enterPhoneNumber.button}
       </RectangleButton>
     </>
   );

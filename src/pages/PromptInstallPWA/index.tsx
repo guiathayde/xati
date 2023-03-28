@@ -4,6 +4,7 @@ import Modal from 'react-modal';
 import { useWindowDimensions } from '../../hooks/windowDimensions';
 import { useIOSInstallPrompt } from '../../hooks/promptInstallPWA/iosInstallPrompt';
 import { useWebInstallPrompt } from '../../hooks/promptInstallPWA/webInstallPrompt';
+import { useTranslate } from '../../hooks/translate';
 
 import { RectangleButton } from '../../components/RectangleButton';
 
@@ -13,6 +14,7 @@ export function PromptInstallPWA() {
   const { isMobile, height } = useWindowDimensions();
   const iOSInstallPrompt = useIOSInstallPrompt();
   const webInstallPrompt = useWebInstallPrompt();
+  const { strings } = useTranslate();
 
   const isIOSInstallPrompt = iOSInstallPrompt.userShouldBePromptedToInstall;
   const handleIOSInstallDeclined =
@@ -51,7 +53,7 @@ export function PromptInstallPWA() {
       }}
     >
       <Header>
-        <span>Install this app?</span>
+        <span>{strings.promptInstallPWA.header.title}</span>
         <button
           type="button"
           onClick={() => {
@@ -60,18 +62,15 @@ export function PromptInstallPWA() {
             setIsOpen(false);
           }}
         >
-          Cancel
+          {strings.promptInstallPWA.header.button}
         </button>
       </Header>
 
-      <Body>
-        This website has app functionality. Add it to your home screen to use it
-        in fullscreen and while offline.
-      </Body>
+      <Body>{strings.promptInstallPWA.body}</Body>
 
       {isWebInstallPrompt && (
         <RectangleButton onClick={handleWebInstallAccepted}>
-          Download
+          {strings.promptInstallPWA.web.button}
         </RectangleButton>
       )}
 
@@ -79,11 +78,11 @@ export function PromptInstallPWA() {
         <IOSPrompt>
           <div>
             <i className="material-icons share">ios_share</i>
-            <span>1) Press the 'Share' button</span>
+            <span>1) {strings.promptInstallPWA.ios.share}</span>
           </div>
           <div>
             <i className="material-icons-outlined add">add_box</i>
-            <span>2) Press 'Add to Home Screen'</span>
+            <span>2) {strings.promptInstallPWA.ios.addHome}</span>
           </div>
         </IOSPrompt>
       )}

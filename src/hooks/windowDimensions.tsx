@@ -43,8 +43,18 @@ export function WindowDimensionsProvider({
     window.addEventListener('resize', handleResize);
 
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      screen.orientation
+        .lock('portrait')
+        .then(() => console.log('Portrait mode locked'))
+        .catch(error => console.error(error));
+    }
+  }, [isMobile]);
 
   return (
     <WindowDimensionsContext.Provider

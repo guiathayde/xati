@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
+import { useTranslate } from '../../hooks/translate';
 
 import { api } from '../../services/api';
 
@@ -27,6 +28,7 @@ export function AddUser() {
   const { user } = useAuth();
   const { colors } = useColorMode();
   const navigate = useNavigate();
+  const { strings } = useTranslate();
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userNotFound, setUserNotFound] = useState(false);
@@ -72,12 +74,14 @@ export function AddUser() {
         }}
       />
 
-      <Title style={{ color: colors.addUser.titleColor }}>Add User</Title>
+      <Title style={{ color: colors.addUser.titleColor }}>
+        {strings.addUser.title}
+      </Title>
 
       <InputField>
         <PhoneNumberInput
           name="phone-number"
-          placeholder="Enter phone number"
+          placeholder={strings.addUser.inputPhonePlaceholder}
           containerStyle={{ width: '70%', margin: 0 }}
           onChange={setPhoneNumber}
         />
@@ -90,7 +94,7 @@ export function AddUser() {
       {userNotFound && (
         <UserNotFound>
           <BoldText style={{ color: colors.addUser.titleColor }}>
-            User not found
+            {strings.addUser.userNotFound}
           </BoldText>
           <Emoji>😔</Emoji>
         </UserNotFound>
@@ -99,7 +103,7 @@ export function AddUser() {
       {userToAdd && user && userToAdd.id === user.id && (
         <UserNotFound>
           <BoldText style={{ color: colors.addUser.titleColor }}>
-            Unable to talk to yourself
+            {strings.addUser.unableTalkToYourself}
           </BoldText>
           <Emoji>😔</Emoji>
         </UserNotFound>

@@ -85,12 +85,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
           const currentUser = auth.currentUser;
           if (currentUser) await currentUser.reload();
-
-          console.log('Profile updated in database!');
         }
       } catch (error) {
         console.error(error);
-        alert('Error updating profile in database!');
       }
     },
     [auth, socket],

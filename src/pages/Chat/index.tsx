@@ -11,6 +11,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth';
 import { useSocket } from '../../hooks/socket';
 import { useColorMode } from '../../hooks/colorMode';
+import { useTranslate } from '../../hooks/translate';
 
 import { api } from '../../services/api';
 
@@ -41,13 +42,14 @@ export function Chat() {
   const { userToChatId } = useParams();
   const navigate = useNavigate();
   const { mode, colors } = useColorMode();
+  const { strings } = useTranslate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [chatRoomId, setChatRoomId] = useState<string>();
   const [userToChat, setUserToChat] = useState<User>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [typingName, setTypingName] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const inputMessageRef = useRef<HTMLInputElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
@@ -176,16 +178,9 @@ export function Chat() {
         api.get(`/messages/read/${newMessage.id}`);
     }
 
-    function handleTyping(data: {
-      senderId: string;
-      senderName: string;
-      content: string;
-    }) {
-      console.log('typing - receive', data);
-      console.log('typing boolean:', user && data.senderId !== user.id);
+    function handleTyping(data: { senderId: string; content: string }) {
       if (user && data.senderId !== user.id) {
-        if (data.content.length === 0) setTypingName('');
-        else setTypingName(data.senderName);
+        setIsTyping(data.content.length > 0);
       }
     }
 
@@ -203,7 +198,6 @@ export function Chat() {
       socket.emit('typing', {
         chatRoomId,
         senderId: user.id,
-        senderName: user.name?.split(' ')[0],
         content: newMessage,
       });
     }
@@ -229,12 +223,12 @@ export function Chat() {
         <MessageList>{messages.map(renderMessages)}</MessageList>
       )}
 
-      {typingName.length > 0 && <Typing>{typingName} is typing...</Typing>}
+      {isTyping && <Typing>{strings.chat.typing}</Typing>}
 
       <Input
         ref={inputMessageRef}
         name="message"
-        placeholder="Message"
+        placeholder={strings.chat.inputMessagePlaceholder}
         hasSendButton
         autoCapitalize="sentences"
         autoComplete="on"
@@ -245,8 +239,6 @@ export function Chat() {
         onSend={handleSendMessage}
         containerStyle={{
           width: '90%',
-          // position: 'absolute',
-          // bottom: 16,
           marginTop: 'auto',
         }}
       />

@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 import { useColorMode } from '../../hooks/colorMode';
+import { useTranslate } from '../../hooks/translate';
 
 import { Container } from '../../components/Container';
 import { BackButton } from '../../components/BackButton';
 import { Input } from '../../components/Input';
 import { PhoneNumberInput } from '../../components/PhoneNumberInput';
 import { RectangleButton } from '../../components/RectangleButton';
-import { ImageCropModal } from '../../components/ImageCropModal';
-import { SelectPhotoModal } from './components/SelectPhotoModal';
 import { LoadingModal } from '../../components/LoadingModal';
+import { ImageCropModal } from './components/ImageCropModal';
+import { SelectPhotoModal } from './components/SelectPhotoModal';
 
 import { Title, PhotoContainer, Photo, PhotoEditContainer } from './styles';
 
@@ -23,6 +24,7 @@ import profileDefaultDark from '../../assets/shared/profileDefaultDark.svg';
 export function Profile() {
   const { user, updateProfileName, updateProfilePhoto, signOut } = useAuth();
   const { mode, colors } = useColorMode();
+  const { strings } = useTranslate();
   const navigate = useNavigate();
 
   const [photoUrl, setPhotoUrl] = useState(user?.photoUrl);
@@ -95,7 +97,9 @@ export function Profile() {
         onClick={() => navigate('/dashboard')}
       />
 
-      <Title style={{ color: colors.profile.titleColor }}>Profile</Title>
+      <Title style={{ color: colors.profile.titleColor }}>
+        {strings.profile.title}
+      </Title>
 
       <PhotoContainer>
         <Photo src={profilePhotoUrl} alt="Profile" />
@@ -106,7 +110,7 @@ export function Profile() {
 
       <Input
         name="name"
-        placeholder="Name"
+        placeholder={strings.profile.inputNamePlaceholder}
         containerStyle={{ width: '80%', marginTop: 44 }}
         value={name}
         onChange={e => setName(e.target.value)}
@@ -116,12 +120,12 @@ export function Profile() {
         onClick={async () => await handleSaveProfile()}
         style={{ width: '80%', marginTop: 32 }}
       >
-        Save
+        {strings.profile.saveButton}
       </RectangleButton>
 
       <PhoneNumberInput
         name="phone"
-        placeholder="Phone"
+        placeholder={strings.profile.inputPhonePlaceholder}
         containerStyle={{ width: '80%', marginTop: 44 }}
         value={user?.phoneNumber}
         disabled
@@ -136,7 +140,7 @@ export function Profile() {
         style={{ width: '80%', marginTop: 32 }}
         onClick={async () => await signOut()}
       >
-        Logout
+        {strings.profile.logoutButton}
       </RectangleButton>
 
       <ImageCropModal

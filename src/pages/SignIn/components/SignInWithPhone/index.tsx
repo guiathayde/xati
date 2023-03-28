@@ -1,5 +1,6 @@
 import { useWindowDimensions } from '../../../../hooks/windowDimensions';
 import { useColorMode } from '../../../../hooks/colorMode';
+import { useTranslate } from '../../../../hooks/translate';
 
 import { LogoText } from '../../../../components/LogoText';
 
@@ -12,6 +13,7 @@ interface SignInWithPhoneProps {
 export function SignInWithPhone({ onClick }: SignInWithPhoneProps) {
   const { height } = useWindowDimensions();
   const { colors } = useColorMode();
+  const { strings } = useTranslate();
 
   return (
     <>
@@ -22,7 +24,7 @@ export function SignInWithPhone({ onClick }: SignInWithPhoneProps) {
         background={colors.signin.buttonBackground}
         onClick={onClick}
       >
-        Sign in with your phone number
+        {strings.signin.signinWithPhone.button}
       </Button>
     </>
   );

@@ -2,6 +2,7 @@ import { ChangeEvent, useMemo } from 'react';
 import Modal from 'react-modal';
 
 import { useWindowDimensions } from '../../../../hooks/windowDimensions';
+import { useTranslate } from '../../../../hooks/translate';
 
 import { modalStyles, HandleModal, TextChoice, Divider } from './styles';
 
@@ -17,6 +18,7 @@ export function SelectPhotoModal({
   handleSelectPhoto,
 }: SelectPhotoModalProps) {
   const { isMobile, height } = useWindowDimensions();
+  const { strings } = useTranslate();
 
   const modalMarginBottom = useMemo(() => {
     if (isMobile) return 0;
@@ -46,7 +48,7 @@ export function SelectPhotoModal({
       <HandleModal />
 
       <TextChoice htmlFor="take-photo">
-        Take a photo
+        {strings.profile.selectPhotoModal.takePhoto}
         <input
           id="take-photo"
           name="take-photo"
@@ -60,7 +62,7 @@ export function SelectPhotoModal({
       <Divider />
 
       <TextChoice htmlFor="choose-gallery">
-        Choose from gallery
+        {strings.profile.selectPhotoModal.chooseGallery}
         <input
           id="choose-gallery"
           name="choose-gallery"

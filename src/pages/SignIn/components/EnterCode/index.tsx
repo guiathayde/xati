@@ -1,4 +1,5 @@
 import { useColorMode } from '../../../../hooks/colorMode';
+import { useTranslate } from '../../../../hooks/translate';
 
 import { BackButton } from '../../../../components/BackButton';
 import { LogoText } from '../../../../components/LogoText';
@@ -22,6 +23,7 @@ export function EnterCode({
   onSendCode,
 }: EnterCodeProps) {
   const { colors } = useColorMode();
+  const { strings } = useTranslate();
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -44,12 +46,12 @@ export function EnterCode({
       <LogoText containerStyle={{ marginTop: 16 }} />
 
       <Title style={{ color: colors.signInCodePhoneNumber.titleColor }}>
-        Enter the code sent to your phone number
+        {strings.signin.enterCode.title}
       </Title>
 
       <Input
         name="code"
-        placeholder="Enter code"
+        placeholder={strings.signin.enterCode.inputCodePlaceholder}
         autoFocus
         maxLength={6}
         onChange={e => setCode(e.target.value)}
@@ -71,7 +73,7 @@ export function EnterCode({
         onClick={async () => await onSendCode()}
         style={{ width: '80%', marginTop: 'auto', marginBottom: 'auto' }}
       >
-        Continue
+        {strings.signin.enterCode.button}
       </RectangleButton>
     </>
   );
