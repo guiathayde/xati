@@ -30,10 +30,8 @@ export function ServiceWorkerProvider({
   );
   const [showReload, setShowReload] = useState(false);
 
-  // called when a service worker
-  // updates. this function is a callback
-  // to the actual service worker
-  // registration onUpdate.
+  // called when a service worker updates. this function is a callback
+  // to the actual service worker registration onUpdate.
   const onSWUpdate = useCallback((registration: ServiceWorkerRegistration) => {
     setShowReload(true);
     setWaitingWorker(registration.waiting);
@@ -53,6 +51,9 @@ export function ServiceWorkerProvider({
     // unregister() to register() below. Note this comes with some pitfalls.
     // Learn more about service workers: https://cra.link/PWA
     serviceWorkerRegistration.register({
+      onSuccess(registration) {
+        console.log('Service worker registration successful');
+      },
       onUpdate: onSWUpdate,
     });
   }, [onSWUpdate]);
