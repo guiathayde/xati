@@ -15,8 +15,7 @@ export function PromptUpdateServiceWorker() {
   const { waitingWorker, showReload, reloadPage } = useServiceWorker();
 
   useEffect(() => {
-    // eslint-disable-next-line no-constant-condition
-    if (true || (showReload && waitingWorker)) {
+    if (showReload && waitingWorker) {
       toast.custom(t => (
         <Container className={t.visible ? 'animate-enter' : 'animate-leave'}>
           <InfoContainer>
