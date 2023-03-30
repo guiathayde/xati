@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 
+import { ServiceWorkerProvider } from './serviceWorker';
 import { WindowDimensionsProvider } from './windowDimensions';
 import { ColorModeProvider } from './colorMode';
 import { SocketProvider } from './socket';
@@ -14,18 +15,22 @@ interface AppProviderProps {
 
 export function AppProvider({ children }: AppProviderProps) {
   return (
-    <WindowDimensionsProvider>
-      <ColorModeProvider>
-        <SocketProvider>
-          <FirebaseProvider>
-            <AuthProvider>
-              <TranslateProvider>
-                <PromptInstallPWAProvider>{children}</PromptInstallPWAProvider>
-              </TranslateProvider>
-            </AuthProvider>
-          </FirebaseProvider>
-        </SocketProvider>
-      </ColorModeProvider>
-    </WindowDimensionsProvider>
+    <ServiceWorkerProvider>
+      <WindowDimensionsProvider>
+        <ColorModeProvider>
+          <SocketProvider>
+            <FirebaseProvider>
+              <AuthProvider>
+                <TranslateProvider>
+                  <PromptInstallPWAProvider>
+                    {children}
+                  </PromptInstallPWAProvider>
+                </TranslateProvider>
+              </AuthProvider>
+            </FirebaseProvider>
+          </SocketProvider>
+        </ColorModeProvider>
+      </WindowDimensionsProvider>
+    </ServiceWorkerProvider>
   );
 }
