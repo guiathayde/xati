@@ -7,4 +7,5 @@ export interface User {
   photoUrl?: string;
   phoneNumber: string;
   isOnline: boolean;
+  firebaseCloudMessagingToken?: string;
 }

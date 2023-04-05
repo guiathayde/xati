@@ -4,8 +4,8 @@ import { AppProvider } from './hooks';
 
 import { InjectAxiosInterceptors } from './pages/InjectAxiosInterceptors';
 import { PromptInstallPWA } from './pages/PromptInstallPWA';
-import { PromptUpdateServiceWorker } from './pages/PromptUpdateServiceWorker';
-import { PromptNewMessage } from './pages/PromptNewMessage';
+import { ToastyUpdateServiceWorker } from './pages/ToastyUpdateServiceWorker';
+import { ToastyNewMessage } from './pages/ToastyNewMessage';
 
 import { Routes } from './routes';
 
@@ -17,8 +17,8 @@ export function App() {
       <AppProvider>
         <InjectAxiosInterceptors />
         <PromptInstallPWA />
-        <PromptUpdateServiceWorker />
-        <PromptNewMessage />
+        <ToastyUpdateServiceWorker />
+        <ToastyNewMessage />
 
         <Routes />
       </AppProvider>

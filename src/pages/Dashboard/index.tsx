@@ -7,12 +7,14 @@ import 'dayjs/locale/pt-br';
 
 import { useAuth } from '../../hooks/auth';
 import { useSocket } from '../../hooks/socket';
+import { useFirebase } from '../../hooks/firebase';
 import { useTranslate } from '../../hooks/translate';
 import { useColorMode } from '../../hooks/colorMode';
 
 import { api } from '../../services/api';
 
 import { Container } from '../../components/Container';
+import { ToastyContainer } from '../../components/ToastyContainer';
 
 import {
   ProfileButton,
@@ -21,6 +23,7 @@ import {
   FloatingButton,
   ChatList,
   ChatContainer,
+  ToastyContent,
 } from './styles';
 
 import { User } from '../../interfaces/User';
@@ -39,6 +42,7 @@ interface Chat {
 export function Dashboard() {
   const { user } = useAuth();
   const { socket } = useSocket();
+  const { notificationPermission, askNotificationPermission } = useFirebase();
   const { language, strings } = useTranslate();
   const { mode, colors } = useColorMode();
   const navigate = useNavigate();
@@ -200,9 +204,33 @@ export function Dashboard() {
           </ArrowRight>
         </>
       )}
+
       <FloatingButton onClick={() => navigate('/add-user')}>
         <i className="material-icons">maps_ugc</i>
       </FloatingButton>
+
+      {notificationPermission === 'default' && (
+        <ToastyContainer
+          content={
+            <ToastyContent>
+              <strong>
+                Para receber notificações de novas mensagens autorize aqui
+              </strong>
+            </ToastyContent>
+          }
+          confirmButton={{
+            label: 'Autorizar',
+            onClick: () => askNotificationPermission(),
+          }}
+          cancelButton={{
+            label: 'Não',
+            onClick: () => {},
+          }}
+          toastOptions={{
+            duration: 20000,
+          }}
+        />
+      )}
     </Container>
   );
 }

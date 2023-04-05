@@ -65,6 +65,10 @@ interface TranslateContextData {
       userNotFound: string;
       unableTalkToYourself: string;
     };
+    promptNewMessage: {
+      open: string;
+      close: string;
+    };
   };
 }
 
@@ -144,6 +148,10 @@ export function TranslateProvider({ children }: TranslateProviderProps) {
             userNotFound: 'Contato não encontrado',
             unableTalkToYourself: 'Você não consegue conversar com você mesmo',
           },
+          promptNewMessage: {
+            open: 'abrir',
+            close: 'fechar',
+          },
         };
 
       default:
@@ -208,6 +216,10 @@ export function TranslateProvider({ children }: TranslateProviderProps) {
             inputPhonePlaceholder: 'Phone',
             userNotFound: 'Contact not found',
             unableTalkToYourself: 'Unable to talk to yourself',
+          },
+          promptNewMessage: {
+            open: 'open',
+            close: 'close',
           },
         };
     }

@@ -199,3 +199,17 @@ export const ChatContainer = styled(Link)`
     color: #243443;
   }
 `;
+
+export const ToastyContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
+
+  padding: 16px;
+
+  strong {
+    font-weight: 600;
+  }
+`;

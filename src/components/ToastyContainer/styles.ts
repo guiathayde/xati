@@ -14,24 +14,6 @@ export const Container = styled.div`
   box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
 `;
 
-export const InfoContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-
-  padding: 16px;
-
-  > strong {
-    font-size: 16px;
-    font-weight: 600;
-    color: #243443;
-
-    margin-bottom: 4px;
-  }
-`;
-
 export const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -43,7 +25,7 @@ export const ButtonsContainer = styled.div`
   background-color: transparent;
 `;
 
-export const RefreshButton = styled.button`
+export const ConfirmButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;

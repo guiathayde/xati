@@ -11,8 +11,10 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 interface FirebaseContextData {
   firebaseApp: FirebaseApp;
+  notificationPermission: 'default' | 'denied' | 'granted';
+  askNotificationPermission: () => void;
+  foregroundNotification?: ForegroundNotification;
   getFirebaseCloudMessagingToken: () => Promise<string>;
-  foregroundNotification: ForegroundNotification | undefined;
 }
 
 interface FirebaseProviderProps {
@@ -20,8 +22,10 @@ interface FirebaseProviderProps {
 }
 
 interface ForegroundNotification {
-  title: string;
-  body: string;
+  title?: string;
+  body?: string;
+  photoUrl?: string;
+  id?: string;
 }
 
 const FirebaseContext = createContext<FirebaseContextData>(
@@ -46,8 +50,29 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
   }, []);
   const messaging = useMemo(() => getMessaging(firebaseApp), [firebaseApp]);
 
+  const [notificationPermission, setNotificationPermission] = useState<
+    'default' | 'denied' | 'granted'
+  >(() => {
+    if ('Notification' in window) {
+      return Notification.permission;
+    }
+    return 'default';
+  });
   const [foregroundNotification, setForegroundNotification] =
     useState<ForegroundNotification>();
+
+  const askNotificationPermission = useCallback(() => {
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            console.log('Notification permission granted.');
+            setNotificationPermission('granted');
+          }
+        });
+      }
+    } else console.error('This browser does not support desktop notification');
+  }, []);
 
   const getOrRegisterServiceWorker = useCallback(async () => {
     return window.navigator.serviceWorker
@@ -64,44 +89,35 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
   }, []);
 
   const getFirebaseCloudMessagingToken = useCallback(async () => {
-    return getOrRegisterServiceWorker().then(serviceWorkerRegistration =>
-      getToken(messaging, {
+    return getOrRegisterServiceWorker().then(serviceWorkerRegistration => {
+      return getToken(messaging, {
         vapidKey: process.env.REACT_APP_FIREBASE_CLOUD_MESSAGING_KEY,
         serviceWorkerRegistration,
-      }),
-    );
+      });
+    });
   }, [getOrRegisterServiceWorker, messaging]);
 
   useEffect(() => {
-    // Check if the browser supports notifications
-    if ('Notification' in window) {
-      if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            console.log('Notification permission granted.');
-          }
-        });
-      }
+    let unsubscribe: () => void;
+    if (notificationPermission === 'granted') {
+      unsubscribe = onMessage(messaging, payload => {
+        if (payload.notification && payload.data) {
+          setForegroundNotification({
+            title: payload.notification.title,
+            body: payload.notification.body,
+            photoUrl: payload.data.photoUrl,
+            id: payload.data.id,
+          });
 
-      if (Notification.permission === 'granted') {
-        onMessage(messaging, payload => {
-          console.log('Received foreground message: ', payload);
-
-          if (payload.notification) {
-            setForegroundNotification({
-              title: payload.notification.title || '',
-              body: payload.notification.body || '',
-            });
-
-            setTimeout(() => {
-              setForegroundNotification(undefined);
-            }, 5000);
-          }
-        });
-      }
-    } else console.error('This browser does not support desktop notification');
+          setTimeout(() => {
+            setForegroundNotification(undefined);
+          }, 5000);
+        }
+      });
+    }
 
     return () => {
+      if (unsubscribe) unsubscribe();
       setForegroundNotification(undefined);
     };
   }, []);
@@ -110,8 +126,10 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
     <FirebaseContext.Provider
       value={{
         firebaseApp,
-        getFirebaseCloudMessagingToken,
+        notificationPermission,
+        askNotificationPermission,
         foregroundNotification,
+        getFirebaseCloudMessagingToken,
       }}
     >
       {children}
