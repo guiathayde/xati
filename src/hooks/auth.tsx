@@ -1,310 +1,52 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  useCallback,
-  useMemo,
-} from 'react';
-import {
-  Auth,
-  getAuth,
-  useDeviceLanguage,
-  signInWithPhoneNumber as firebaseSignInWithPhoneNumber,
-  User as FirebaseUser,
-  updateProfile as firebaseUpdateProfile,
-  onAuthStateChanged,
-  signOut as firebaseSignOut,
-  RecaptchaVerifier,
-  ConfirmationResult,
-} from 'firebase/auth';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { api } from '../services/api';
-
-import { useFirebase } from './firebase';
-import { useSocket } from './socket';
-
-import { User } from '../interfaces/User';
-
-interface AuthContextData {
-  user?: User;
-
-  auth: Auth;
-
-  signInWithPhoneNumber: (
-    appVerifier: RecaptchaVerifier,
-    phoneNumber: string,
-  ) => Promise<boolean>;
-  signInCodeConfirmation: (
-    code: string | undefined,
-  ) => Promise<'error' | 'dashboard' | 'profile'>;
-
-  updateProfileName: (name: string) => Promise<boolean>;
-  updateProfilePhoto: (croppedImageSource: string) => Promise<boolean>;
-
-  signOut: () => Promise<void>;
+interface User {
+  id: string;
+  name: string;
 }
 
-interface AuthProviderProps {
-  children: React.ReactNode;
+interface AuthContextData {
+  user: User | null;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const { firebaseApp } = useFirebase();
-  const { socket } = useSocket();
-
-  const auth = useMemo(() => getAuth(firebaseApp), [firebaseApp]);
-  useDeviceLanguage(auth);
-
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult>();
-
-  const [user, setUser] = useState<User>();
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const updateProfileInDatabaseAndLocal = useCallback(
-    async (userUpdated: FirebaseUser) => {
-      try {
-        const userUpdatedInDatabase: User = {
-          id: userUpdated.uid,
-          socketId: socket.id,
-          name: userUpdated.displayName || '',
-          email: userUpdated.email || '',
-          phoneNumber: userUpdated.phoneNumber || '',
-          isOnline: true,
-        };
-
-        const response = await api.post(
-          '/users/create-or-update',
-          userUpdatedInDatabase,
-        );
-
-        if (response.data) {
-          setUser(response.data);
-
-          const currentUser = auth.currentUser;
-          if (currentUser) await currentUser.reload();
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [auth, socket],
-  );
-
-  const signInWithPhoneNumber = useCallback(
-    async (appVerifier: RecaptchaVerifier, phoneNumber: string) => {
-      try {
-        const confirmationResultUpdated = await firebaseSignInWithPhoneNumber(
-          auth,
-          phoneNumber,
-          appVerifier,
-        );
-
-        setConfirmationResult(confirmationResultUpdated);
-
-        return true;
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
-    },
-    [auth],
-  );
-
-  const signInCodeConfirmation = useCallback(
-    async (code: string | undefined) => {
-      if (!confirmationResult) {
-        alert('Please enter a phone number');
-        return 'error';
-      }
-      if (!code || code === '') {
-        alert('Please enter the code sent to your phone');
-        return 'error';
-      }
-
-      try {
-        const result = await confirmationResult.confirm(code);
-
-        if (result.user.uid) {
-          const token = await result.user.getIdToken();
-          localStorage.setItem('@Xati:token', token);
-          api.defaults.headers.authorization = `Bearer ${token}`;
-
-          await updateProfileInDatabaseAndLocal(result.user);
-
-          if (result.user.displayName) return 'dashboard';
-          else return 'profile';
-        }
-
-        return 'error';
-      } catch (error) {
-        console.error(error);
-        return 'error';
-      }
-    },
-    [updateProfileInDatabaseAndLocal, confirmationResult],
-  );
-
-  const updateProfileName = useCallback(
-    async (name: string) => {
-      let success = false;
-
-      if (user && auth.currentUser) {
-        if (name && name !== user.name && name.length > 0) {
-          try {
-            await firebaseUpdateProfile(auth.currentUser, {
-              displayName: name,
-            });
-
-            console.log('Profile name updated!');
-            success = true;
-          } catch (error) {
-            console.error(error);
-          }
-        }
-
-        await auth.currentUser.reload();
-        await updateProfileInDatabaseAndLocal(auth.currentUser);
-      }
-
-      return success;
-    },
-    [auth.currentUser, updateProfileInDatabaseAndLocal, user],
-  );
-
-  const updateProfilePhoto = useCallback(
-    async (croppedImageSource: string) => {
-      let success = false;
-
-      if (user && auth.currentUser) {
-        const response = await fetch(croppedImageSource);
-        const blob = await response.blob();
-
-        try {
-          const formData = new FormData();
-          formData.append('id', user.id);
-          formData.append('photo', blob);
-
-          const response = await api.post(
-            'users/upload-profile-photo',
-            formData,
-          );
-
-          const userUpdated = response.data as User;
-
-          if (userUpdated) {
-            await firebaseUpdateProfile(auth.currentUser, {
-              photoURL: userUpdated.photoUrl,
-            });
-
-            await auth.currentUser.reload();
-
-            console.log('Profile photo updated!');
-            success = true;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
-      return success;
-    },
-    [auth, user],
-  );
-
-  const signOut = useCallback(async () => {
-    try {
-      await firebaseSignOut(auth);
-
-      localStorage.removeItem('@Xati:token');
-      setUser(undefined);
-    } catch (error) {
-      console.error(error);
-      alert('Error signing out!');
-    }
-  }, [auth]);
-
   useEffect(() => {
-    setLoading(true);
+    AsyncStorage.getItem('@Xati:user')
+      .then(response => {
+        if (response !== null) {
+          const userStored = JSON.parse(response) as User;
 
-    const unsubscribe = onAuthStateChanged(auth, async loggedUser => {
-      if (loggedUser) {
-        const token = await loggedUser.getIdToken();
-        localStorage.setItem('@Xati:token', token);
-        api.defaults.headers.authorization = `Bearer ${token}`;
-
-        await updateProfileInDatabaseAndLocal(loggedUser);
-
+          setUser(userStored);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      })
+      .finally(() => {
         setLoading(false);
-      } else {
-        setUser(undefined);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [auth, updateProfileInDatabaseAndLocal]);
-
-  useEffect(() => {
-    function setOfflineStatus() {
-      if (user)
-        socket.emit('updateIsOnline', {
-          userId: user.id,
-          isOnline: false,
-        });
-    }
-
-    function handleBeforeUnload() {
-      // código para executar antes do usuário sair do site
-      setOfflineStatus();
-    }
-
-    function handleBlur() {
-      // código para executar quando o usuário desfoca o site
-      setOfflineStatus();
-    }
-
-    function handleFocus() {
-      // código para executar quando o usuário foca o site
-      if (user)
-        socket.emit('updateIsOnline', {
-          userId: user.id,
-          isOnline: true,
-        });
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [user, socket]);
+      });
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        auth,
-        signInWithPhoneNumber,
-        signInCodeConfirmation,
-        updateProfileName,
-        updateProfilePhoto,
-        signOut,
+        loading,
       }}
     >
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export function useAuth(): AuthContextData {
   const context = useContext(AuthContext);

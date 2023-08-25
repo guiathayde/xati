@@ -1,39 +1,29 @@
-import { Routes as Switch, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-import { PrivateRoute } from './PrivateRoute';
+import { AuthRoutes } from './auth';
+import { AppRoutes } from './app';
 
-import { SignIn } from '../pages/SignIn';
-import { Profile } from '../pages/Profile';
-import { Dashboard } from '../pages/Dashboard';
-import { AddUser } from '../pages/AddUser';
-import { Chat } from '../pages/Chat';
+import { useAuth } from '../hooks/auth';
 
-export function Routes() {
-  return (
-    <Switch>
-      <Route path="/signin" element={<SignIn />} />
+export const Routes: React.FC = () => {
+  const { user, loading } = useAuth();
 
-      <Route path="/dashboard" element={<PrivateRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Route>
-      {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#377DFF" />
+      </View>
+    );
+  }
 
-      <Route path="/profile" element={<PrivateRoute />}>
-        <Route path="/profile" element={<Profile />} />
-      </Route>
-      {/* <Route path="/profile" element={<Profile />} /> */}
+  return user ? <AppRoutes /> : <AuthRoutes />;
+};
 
-      <Route path="/add-user" element={<PrivateRoute />}>
-        <Route path="/add-user" element={<AddUser />} />
-      </Route>
-      {/* <Route path="/add-user" element={<AddUser />} /> */}
-
-      <Route path="/chat/:userToChatId" element={<PrivateRoute />}>
-        <Route path="/chat/:userToChatId" element={<Chat />} />
-      </Route>
-      {/* <Route path="/chat/:userToChatId" element={<Chat />} /> */}
-
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Switch>
-  );
-}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

@@ -1,29 +1,22 @@
-import { BrowserRouter } from 'react-router-dom';
+import React from 'react';
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
 import { AppProvider } from './hooks';
 
-import { InjectAxiosInterceptors } from './pages/InjectAxiosInterceptors';
-import { PromptInstallPWA } from './pages/PromptInstallPWA';
-import { ToastyUpdateServiceWorker } from './pages/ToastyUpdateServiceWorker';
-import { ToastyNewMessage } from './pages/ToastyNewMessage';
-
 import { Routes } from './routes';
 
-import { GlobalStyle } from './styles/global';
-
-export function App() {
+export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <NavigationContainer>
+      <StatusBar
+        barStyle="dark-content"
+        translucent
+        backgroundColor="transparent"
+      />
       <AppProvider>
-        <InjectAxiosInterceptors />
-        <PromptInstallPWA />
-        <ToastyUpdateServiceWorker />
-        <ToastyNewMessage />
-
         <Routes />
       </AppProvider>
-
-      <GlobalStyle />
-    </BrowserRouter>
+    </NavigationContainer>
   );
-}
+};
