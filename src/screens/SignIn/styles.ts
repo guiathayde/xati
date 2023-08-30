@@ -7,21 +7,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
-  logo: {
-    flexDirection: 'row',
-    marginTop: '40%',
-    marginBottom: 4 * 16,
-  },
-  logoText: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 60,
-    color: '#243443',
-  },
-  logoDot: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 60,
-    color: '#377DFF',
-  },
   signInButton: {
     borderRadius: 8,
     shadowColor: '#000',
@@ -42,8 +27,5 @@ export const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     color: '#243443',
-  },
-  googleIcon: {
-    marginEnd: 16,
   },
 });

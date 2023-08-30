@@ -25,7 +25,15 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+def append_header_search_path(target, path)
+  target.build_configurations.each do |config|
+    config.build_settings["HEADER_SEARCH_PATHS"] ||= "$(inherited) "
+    config.build_settings["HEADER_SEARCH_PATHS"] << path
+  end
+end
+
 target 'Xati' do
+  $RNFirebaseAsStaticFramework = true
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -40,17 +48,23 @@ target 'Xati' do
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
     # you should disable the next line.
-    :flipper_configuration => flipper_config,
+    # :flipper_configuration => flipper_config,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
+  
   target 'XatiTests' do
     inherit! :complete
     # Pods for testing
   end
 
   post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      if target.name == "RNScreens"
+        append_header_search_path(target, "${PODS_ROOT}/../../node_modules/react-native/ReactCommon")
+      end
+    end
+
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,

@@ -1,4 +1,4 @@
-package com.xati;
+package com.guiathayde.xati;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

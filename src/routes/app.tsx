@@ -3,7 +3,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Home } from '../screens/Home';
 
-const App = createNativeStackNavigator();
+export type AppNativeStackNavigatorProps = {
+  Home: undefined;
+};
+
+const App = createNativeStackNavigator<AppNativeStackNavigatorProps>();
 
 export const AppRoutes: React.FC = () => (
   <App.Navigator

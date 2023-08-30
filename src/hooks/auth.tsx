@@ -1,13 +1,14 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface User {
-  id: string;
-  name: string;
-}
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 interface AuthContextData {
-  user: User | null;
+  user: FirebaseAuthTypes.User | null;
   loading: boolean;
 }
 
@@ -16,25 +17,24 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    AsyncStorage.getItem('@Xati:user')
-      .then(response => {
-        if (response !== null) {
-          const userStored = JSON.parse(response) as User;
-
-          setUser(userStored);
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      })
-      .finally(() => {
+  const onAuthStateChanged = useCallback(
+    (currentUser: FirebaseAuthTypes.User | null) => {
+      console.log('currentUser', JSON.stringify(currentUser, null, 2));
+      setUser(currentUser);
+      if (loading) {
         setLoading(false);
-      });
-  }, []);
+      }
+    },
+    [loading],
+  );
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return () => subscriber();
+  }, [onAuthStateChanged]);
 
   return (
     <AuthContext.Provider
