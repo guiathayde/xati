@@ -1,8 +1,15 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Alert, Keyboard, Text } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+} from 'react-native';
 import { formatIncompletePhoneNumber, isValidNumber } from 'libphonenumber-js';
 
 import { Back } from '../../components/Back';
@@ -60,80 +67,106 @@ export const PhoneSignIn: React.FC = () => {
     setIsLoading(false);
   }, [code, confirm]);
 
+  useEffect(() => {
+    if (confirm && code.length === 6) {
+      Keyboard.dismiss();
+    }
+  }, [code, confirm]);
+
   if (!confirm) {
     return (
-      <SafeAreaView style={styles.sendPhoneNumberContainer}>
-        <Back onPress={handleBack} />
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView contentContainerStyle={styles.container}>
+            <Back onPress={handleBack} />
 
-        <Logo containerStyle={{ marginTop: 128, marginBottom: 16 }} />
+            <Logo containerStyle={{ marginTop: 128, marginBottom: 16 }} />
 
-        <Text style={styles.sendPhoneNumberDescription}>
-          Continue with phone number
-        </Text>
+            <Text style={styles.sendPhoneNumberDescription}>
+              Continue with phone number
+            </Text>
 
-        <Input
-          containerStyle={styles.inputContainer}
-          inputStyle={{ fontSize: 24, letterSpacing: 0 }}
-          placeholder="+55 11 99999-9999"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          returnKeyType="send"
-          onChangeText={text => {
-            const parsedPhoneNumber = formatIncompletePhoneNumber(text);
-            setPhoneNumber(parsedPhoneNumber);
-          }}
-          onSubmitEditing={async () => {
-            Keyboard.dismiss();
-            await handleSignInWithPhoneNumber(phoneNumber);
-          }}
-        />
+            <Input
+              containerStyle={styles.inputContainer}
+              inputStyle={{ fontSize: 24, letterSpacing: 0 }}
+              placeholder="+55 11 99999-9999"
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              returnKeyType="send"
+              onChangeText={text => {
+                const parsedPhoneNumber = formatIncompletePhoneNumber(text);
+                setPhoneNumber(parsedPhoneNumber);
+              }}
+              onSubmitEditing={async () => {
+                Keyboard.dismiss();
+                await handleSignInWithPhoneNumber(phoneNumber);
+              }}
+            />
 
-        <Button
-          containerStyle={{
-            width: '85%',
-            marginTop: 'auto',
-            marginBottom: 16,
-          }}
-          title="Phone Number Sign In"
-          isLoading={isLoading}
-          onPress={async () => await handleSignInWithPhoneNumber(phoneNumber)}
-        />
+            <Button
+              containerStyle={{
+                width: '85%',
+                marginTop: 'auto',
+                marginBottom: 32,
+              }}
+              title="Phone Number Sign In"
+              isLoading={isLoading}
+              onPress={async () =>
+                await handleSignInWithPhoneNumber(phoneNumber)
+              }
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.sendPhoneNumberContainer}>
-      <Back onPress={handleBack} />
+    <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Back onPress={handleBack} />
 
-      <Logo containerStyle={{ marginTop: 128, marginBottom: 16 }} />
+          <Logo containerStyle={{ marginTop: 128, marginBottom: 16 }} />
 
-      <Text style={styles.sendPhoneNumberDescription}>
-        Enter the 6 digit code we sent to you
-      </Text>
+          <Text style={styles.sendPhoneNumberDescription}>
+            Enter the 6 digit code we sent to you
+          </Text>
 
-      <Input
-        containerStyle={styles.inputContainer}
-        inputStyle={{ textAlign: 'center', fontSize: 24, letterSpacing: 12 }}
-        maxLength={6}
-        placeholder="123456"
-        keyboardType="number-pad"
-        value={code}
-        returnKeyType="send"
-        onChangeText={text => setCode(text)}
-        onSubmitEditing={async () => await handleConfirmCode()}
-      />
+          <Input
+            containerStyle={styles.inputContainer}
+            inputStyle={{
+              textAlign: 'center',
+              fontSize: 24,
+              letterSpacing: 12,
+            }}
+            maxLength={6}
+            placeholder="123456"
+            keyboardType="number-pad"
+            value={code}
+            returnKeyType="send"
+            onChangeText={text => setCode(text)}
+            onSubmitEditing={async () => await handleConfirmCode()}
+          />
 
-      <Button
-        containerStyle={{
-          width: '85%',
-          marginTop: 'auto',
-          marginBottom: 16,
-        }}
-        title="Confirm Code"
-        isLoading={isLoading}
-        onPress={async () => await handleConfirmCode()}
-      />
+          <Button
+            containerStyle={{
+              width: '85%',
+              position: 'absolute',
+              bottom: 32,
+            }}
+            title="Confirm Code"
+            isLoading={isLoading}
+            onPress={async () => await handleConfirmCode()}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

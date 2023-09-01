@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F7F7F9',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 16,
   },
   title: {
     fontFamily: 'Inter-Bold',

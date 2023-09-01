@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Xati</string>
+	<string>Xati.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -73,5 +73,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to upload images and create albums.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We require camera access to take photos and videos for use within the app.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We use microphone access to record audio for interactive features.</string>
 </dict>
 </plist>

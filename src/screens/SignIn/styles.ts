@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 16,
+    elevation: 4,
     minWidth: '85%',
     padding: 20,
     marginBottom: 16,

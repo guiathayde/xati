@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  sendPhoneNumberContainer: {
-    flex: 1,
+  container: {
+    flexGrow: 1,
     alignItems: 'center',
     backgroundColor: '#F7F7F9',
   },
@@ -15,5 +15,25 @@ export const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '85%',
+  },
+
+  inner: {
+    padding: 24,
+    flex: 1,
+    justifyContent: 'space-around',
+  },
+  header: {
+    fontSize: 36,
+    marginBottom: 48,
+  },
+  textInput: {
+    height: 40,
+    borderColor: '#000000',
+    borderBottomWidth: 1,
+    marginBottom: 36,
+  },
+  btnContainer: {
+    backgroundColor: 'white',
+    marginTop: 12,
   },
 });

@@ -22,13 +22,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const onAuthStateChanged = useCallback(
     (currentUser: FirebaseAuthTypes.User | null) => {
-      console.log('currentUser', JSON.stringify(currentUser, null, 2));
       setUser(currentUser);
-      if (loading) {
-        setLoading(false);
-      }
+      setLoading(false);
     },
-    [loading],
+    [],
   );
 
   useEffect(() => {

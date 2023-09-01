@@ -13,12 +13,12 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		4A971BD4FFE64C04955F5512 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CFA1B388FACE41F5BA75A1F8 /* Inter-Regular.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		935B83A31AD74FB38CAD324C /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 596C07168D7D4489A8342B32 /* Inter-Medium.ttf */; };
 		BA8961F56036E0426484E3BE /* Pods_Xati.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187626C43929D6D8CC21050D /* Pods_Xati.framework */; };
+		C78BBABDE61F4DD8B0605F89 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DA689C795EAD41F3B1F5C6D6 /* Inter-SemiBold.ttf */; };
 		CD1590E02ABC5BEAE11E5AF6 /* Pods_Xati_XatiTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65055C843E567354B74DE1F7 /* Pods_Xati_XatiTests.framework */; };
 		D87E63172A990AD900BB4BB0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D87E63162A990AD900BB4BB0 /* GoogleService-Info.plist */; };
 		ECE0EEFD23D2418A87CDFBA5 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F74474EB39544B84A4959054 /* Inter-Bold.ttf */; };
-		935B83A31AD74FB38CAD324C /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 596C07168D7D4489A8342B32 /* Inter-Medium.ttf */; };
-		C78BBABDE61F4DD8B0605F89 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DA689C795EAD41F3B1F5C6D6 /* Inter-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,16 +44,16 @@
 		187626C43929D6D8CC21050D /* Pods_Xati.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Xati.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-Xati.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Xati.debug.xcconfig"; path = "Target Support Files/Pods-Xati/Pods-Xati.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-Xati.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Xati.release.xcconfig"; path = "Target Support Files/Pods-Xati/Pods-Xati.release.xcconfig"; sourceTree = "<group>"; };
+		596C07168D7D4489A8342B32 /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-Xati-XatiTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Xati-XatiTests.debug.xcconfig"; path = "Target Support Files/Pods-Xati-XatiTests/Pods-Xati-XatiTests.debug.xcconfig"; sourceTree = "<group>"; };
 		65055C843E567354B74DE1F7 /* Pods_Xati_XatiTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Xati_XatiTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Xati/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-Xati-XatiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Xati-XatiTests.release.xcconfig"; path = "Target Support Files/Pods-Xati-XatiTests/Pods-Xati-XatiTests.release.xcconfig"; sourceTree = "<group>"; };
 		CFA1B388FACE41F5BA75A1F8 /* Inter-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Regular.ttf"; path = "../assets/fonts/Inter-Regular.ttf"; sourceTree = "<group>"; };
 		D87E63162A990AD900BB4BB0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DA689C795EAD41F3B1F5C6D6 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F74474EB39544B84A4959054 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
-		596C07168D7D4489A8342B32 /* Inter-Medium.ttf */ = {isa = PBXFileReference; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		DA689C795EAD41F3B1F5C6D6 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,6 +242,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"pt-BR",
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
