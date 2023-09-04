@@ -15,6 +15,8 @@ import {
   View,
 } from 'react-native';
 
+import { useAuth } from '../../hooks/auth';
+
 import { Back } from '../../components/Back';
 import { Input } from '../../components/Input';
 
@@ -32,6 +34,7 @@ interface UserFound {
 
 export const SearchUser: React.FC = () => {
   const naigavetion = useNavigation();
+  const { user } = useAuth();
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isUserNotFound, setIsUserNotFound] = useState(false);
@@ -51,16 +54,71 @@ export const SearchUser: React.FC = () => {
         .get();
 
       if (usersFound.docs.length > 0) {
-        setUserFound(usersFound.docs[0].data() as UserFound);
+        setUserFound({
+          uid: usersFound.docs[0].id,
+          ...usersFound.docs[0].data(),
+        } as UserFound);
         setIsUserNotFound(false);
       } else {
         setIsUserNotFound(true);
-        Alert.alert('User not found.');
       }
     } else {
       Alert.alert('Invalid phone number.');
     }
   }, []);
+
+  const handleStartChat = useCallback(async () => {
+    if (userFound && user) {
+      const chatAlreadyExists = await firestore()
+        .collection('chats')
+        .where(
+          firestore.Filter.or(
+            firestore.Filter('users', '==', [userFound.uid, user.uid]),
+            firestore.Filter('users', '==', [user.uid, userFound.uid]),
+          ),
+        )
+        .get();
+
+      if (chatAlreadyExists.docs.length > 0) {
+        naigavetion.navigate('Chat', {
+          chatId: chatAlreadyExists.docs[0].id,
+          userToChat: userFound,
+        });
+      } else {
+        const chatRef = await firestore()
+          .collection('chats')
+          .add({
+            users: [userFound.uid, user.uid],
+          });
+
+        await firestore()
+          .collection('users')
+          .doc(user.uid)
+          .update({
+            chats: firestore.FieldValue.arrayUnion(chatRef.id),
+          });
+
+        await firestore()
+          .collection('users')
+          .doc(userFound.uid)
+          .update({
+            chats: firestore.FieldValue.arrayUnion(chatRef.id),
+          });
+
+        await firestore()
+          .collection('chats')
+          .doc(chatRef.id)
+          .collection('messages')
+          .doc()
+          .set({}, { merge: true });
+
+        naigavetion.navigate('Chat', {
+          chatId: chatRef.id,
+          userToChat: userFound,
+        });
+      }
+    }
+  }, [naigavetion, user, userFound]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -108,7 +166,10 @@ export const SearchUser: React.FC = () => {
           />
 
           {!isUserNotFound && userFound && (
-            <TouchableOpacity style={styles.userFoundContainer}>
+            <TouchableOpacity
+              style={styles.userFoundContainer}
+              onPress={async () => await handleStartChat()}
+            >
               <Image
                 style={styles.userFoundProfilePhoto}
                 source={{ uri: userFound.photoURL }}
