@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -57,7 +58,22 @@ export const PhoneSignIn: React.FC = () => {
 
     try {
       if (confirm) {
-        await confirm.confirm(code);
+        const response = await confirm.confirm(code);
+        if (response) {
+          const { uid } = response.user;
+
+          const user = await firestore().collection('users').doc(uid).get();
+
+          if (user.exists) {
+            navigation.navigate('Home');
+          } else {
+            await firestore().collection('users').doc(uid).set({
+              phoneNumber,
+            });
+
+            navigation.navigate('Profile', { isNewUser: true });
+          }
+        }
       }
     } catch (error) {
       console.log('Invalid code.');
@@ -65,7 +81,7 @@ export const PhoneSignIn: React.FC = () => {
     }
 
     setIsLoading(false);
-  }, [code, confirm]);
+  }, [code, confirm, navigation, phoneNumber]);
 
   useEffect(() => {
     if (confirm && code.length === 6) {

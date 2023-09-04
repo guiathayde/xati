@@ -1,6 +1,9 @@
 import React, { useCallback, useState } from 'react';
+import { RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import { checkAndRequestPermissions } from '../../utils/checkAndRequestPermissions';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -20,6 +23,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
+import { AppNativeStackNavigatorProps } from '../../routes/app';
+
 import { useAuth } from '../../hooks/auth';
 
 import { Back } from '../../components/Back';
@@ -31,7 +36,17 @@ import { styles } from './styles';
 import DefaultAvatar from '../../assets/screens/Profile/default_user.png';
 import EditIcon from '../../assets/screens/Profile/ic_edit.png';
 
-export function Profile() {
+interface ProfileProps {
+  route: RouteProp<AppNativeStackNavigatorProps, 'Profile'>;
+  navigation: NativeStackNavigationProp<
+    AppNativeStackNavigatorProps,
+    'Profile'
+  >;
+}
+
+export const Profile: React.FC<ProfileProps> = ({ route }) => {
+  const { isNewUser } = route.params;
+
   const naigavetion = useNavigation();
   const { user } = useAuth();
 
@@ -115,8 +130,21 @@ export function Profile() {
           .updateProfile({
             photoURL,
           })
-          .then(() => {
+          .then(async () => {
             console.log('User photo updated!');
+
+            const userRef = firestore()
+              .collection('users')
+              .doc(currentUser.uid);
+
+            await userRef.set(
+              {
+                photoURL,
+              },
+              {
+                merge: true,
+              },
+            );
           })
           .catch(error => {
             console.error(error);
@@ -130,33 +158,66 @@ export function Profile() {
   const handleSave = useCallback(async () => {
     setIsLoading(true);
 
-    if (newProfilePhoto || newUsername) {
-      const currentUser = auth().currentUser;
+    if (isNewUser && !newUsername) {
+      Alert.alert('Error', 'You must enter a username!');
+      setIsLoading(false);
+      return;
+    }
 
-      if (currentUser) {
-        if (newProfilePhoto) {
-          await uploadAndUpdatePhotoURL(newProfilePhoto);
-        }
+    if (!newProfilePhoto && !newUsername) {
+      Alert.alert('Error', 'You must enter a username or select a new photo!');
+      setIsLoading(false);
+      return;
+    }
 
-        if (newUsername) {
-          await currentUser
-            .updateProfile({
-              displayName: newUsername,
-            })
-            .then(() => {
-              console.log('User name updated!');
-            })
-            .catch(error => {
-              console.error(error);
-            });
-        }
-      } else {
-        Alert.alert('Error', 'You are not logged in!');
+    const currentUser = auth().currentUser;
+
+    if (currentUser) {
+      if (newProfilePhoto) {
+        await uploadAndUpdatePhotoURL(newProfilePhoto);
       }
+
+      if (newUsername) {
+        await currentUser
+          .updateProfile({
+            displayName: newUsername,
+          })
+          .then(async () => {
+            console.log('User name updated!');
+
+            const userRef = firestore()
+              .collection('users')
+              .doc(currentUser.uid);
+
+            await userRef.set(
+              {
+                displayName: newUsername,
+              },
+              {
+                merge: true,
+              },
+            );
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+
+      if (isNewUser) {
+        naigavetion.navigate('Home');
+      }
+    } else {
+      Alert.alert('Error', 'You are not logged in!');
     }
 
     setIsLoading(false);
-  }, [newProfilePhoto, newUsername, uploadAndUpdatePhotoURL]);
+  }, [
+    isNewUser,
+    naigavetion,
+    newProfilePhoto,
+    newUsername,
+    uploadAndUpdatePhotoURL,
+  ]);
 
   const photoSource = newProfilePhoto
     ? { uri: newProfilePhoto }
@@ -177,25 +238,29 @@ export function Profile() {
       >
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.header}>
-            <Back
-              containerStyle={{
-                top: -10,
-              }}
-              onPress={handleBack}
-            />
+            {!isNewUser && (
+              <Back
+                containerStyle={{
+                  top: -10,
+                }}
+                onPress={handleBack}
+              />
+            )}
 
             <Text style={styles.title}>Profile</Text>
           </View>
 
           <View style={styles.photoContainer}>
-            <TouchableOpacity style={styles.photoImage} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={{ ...styles.photoImage, position: 'absolute' }}
+              activeOpacity={0.8}
+            >
               {isLoadingProfileImage && (
                 <ActivityIndicator size="large" color="#377DFF" />
               )}
               <Image
                 style={styles.photoImage}
                 source={photoSource}
-                onLoadStart={() => setIsLoadingProfileImage(true)}
                 onLoadEnd={() => setIsLoadingProfileImage(false)}
               />
             </TouchableOpacity>
@@ -227,7 +292,7 @@ export function Profile() {
               marginTop: 24,
               marginBottom: 64,
             }}
-            title="Save"
+            title={isNewUser ? 'Create account' : 'Save'}
             onPress={async () => await handleSave()}
             isLoading={isLoading}
           />
@@ -300,4 +365,4 @@ export function Profile() {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
+};

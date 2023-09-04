@@ -15,7 +15,13 @@ export const Home: React.FC = () => {
       <Button
         title="Profile"
         onPress={() => {
-          navigation.navigate('Profile');
+          navigation.navigate('Profile', { isNewUser: false });
+        }}
+      />
+      <Button
+        title="SearchUser"
+        onPress={() => {
+          navigation.navigate('SearchUser');
         }}
       />
       <Button

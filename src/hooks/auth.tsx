@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [user, setUser] = useState(auth().currentUser);
   const [loading, setLoading] = useState(true);
 
   const onAuthStateChanged = useCallback(

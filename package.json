@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "firebase": "firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data",
     "pod-install": "cd ios && NO_FLIPPER=1 USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -14,6 +15,7 @@
     "@react-native-async-storage/async-storage": "^1.19.3",
     "@react-native-firebase/app": "^18.3.1",
     "@react-native-firebase/auth": "^18.3.1",
+    "@react-native-firebase/firestore": "^18.3.2",
     "@react-native-firebase/storage": "^18.3.1",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",

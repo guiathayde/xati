@@ -29,12 +29,13 @@ export const Input: React.FC<InputProps> = ({
 }) => {
   return (
     <View style={{ ...styles.container, ...containerStyle }}>
-      <TextInput
-        style={{ ...styles.input, ...inputStyle }}
-        placeholderTextColor="#AAB0B7"
-        {...props}
-      />
-
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={{ ...styles.input, ...inputStyle }}
+          placeholderTextColor="#AAB0B7"
+          {...props}
+        />
+      </View>
       {iconSource && (
         <TouchableOpacity style={styles.iconContainer} onPress={iconCallback}>
           <Image style={styles.iconInput} source={iconSource} />

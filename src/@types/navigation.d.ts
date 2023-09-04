@@ -3,7 +3,7 @@ import { AppNativeStackNavigatorProps } from '../routes/app';
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList
+    export interface RootParamList
       extends AuthNativeStackNavigatorProps,
         AppNativeStackNavigatorProps {}
   }

@@ -67,3 +67,14 @@ yarn-error.log
 
 android/app/google-services.json
 GoogleService-Info.plist
+
+# Firebase
+.firebaserc
+firebase-debug.log
+firebase.json
+firestore-debug.log
+firestore.indexes.json
+firestore.rules
+storage.rules
+ui-debug.log
+exported-dev-data

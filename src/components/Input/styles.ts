@@ -3,6 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     width: '100%',
+    flexDirection: 'row',
+  },
+  inputContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -23,12 +27,16 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   iconContainer: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#377DFF',
     justifyContent: 'center',
     alignItems: 'center',
+    marginStart: 8,
   },
   iconInput: {
     width: 24,
     height: 24,
-    marginRight: 16,
   },
 });
