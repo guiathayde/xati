@@ -25,11 +25,13 @@ import { styles } from './styles';
 import SearchIcon from '../../assets/screens/SearchUser/ic_search.png';
 import UserNotFoundIcon from '../../assets/screens/SearchUser/ic_sad_emoji.png';
 import ChevronRightIcon from '../../assets/screens/SearchUser/ic_chevron_right.png';
+import DefaultAvatar from '../../assets/screens/Profile/default_user.png';
 
 interface UserFound {
   uid: string;
   displayName: string;
-  photoURL: string;
+  photoURL: any;
+  phoneNumber: string;
 }
 
 export const SearchUser: React.FC = () => {
@@ -54,10 +56,18 @@ export const SearchUser: React.FC = () => {
         .get();
 
       if (usersFound.docs.length > 0) {
+        const userFirestore = usersFound.docs[0].data() as UserFound;
+
         setUserFound({
           uid: usersFound.docs[0].id,
-          ...usersFound.docs[0].data(),
-        } as UserFound);
+          displayName: userFirestore.displayName
+            ? userFirestore.displayName
+            : '',
+          photoURL: userFirestore.photoURL
+            ? { uri: userFirestore.photoURL }
+            : DefaultAvatar,
+          phoneNumber: userFirestore.phoneNumber,
+        });
         setIsUserNotFound(false);
       } else {
         setIsUserNotFound(true);
@@ -69,53 +79,43 @@ export const SearchUser: React.FC = () => {
 
   const handleStartChat = useCallback(async () => {
     if (userFound && user) {
-      const chatAlreadyExists = await firestore()
-        .collection('chats')
-        .where(
-          firestore.Filter.or(
-            firestore.Filter('users', '==', [userFound.uid, user.uid]),
-            firestore.Filter('users', '==', [user.uid, userFound.uid]),
-          ),
-        )
-        .get();
+      try {
+        const chatAlreadyExists = await firestore()
+          .collection('usersInChat')
+          .where(
+            firestore.Filter.or(
+              firestore.Filter('users', '==', [userFound.uid, user.uid]),
+              firestore.Filter('users', '==', [user.uid, userFound.uid]),
+            ),
+          )
+          .get();
 
-      if (chatAlreadyExists.docs.length > 0) {
-        naigavetion.navigate('Chat', {
-          chatId: chatAlreadyExists.docs[0].id,
-          userToChat: userFound,
-        });
-      } else {
-        const chatRef = await firestore()
-          .collection('chats')
-          .add({
-            users: [userFound.uid, user.uid],
+        if (chatAlreadyExists.docs.length > 0) {
+          naigavetion.navigate('Chat', {
+            chatId: chatAlreadyExists.docs[0].id,
+            userToChat: userFound,
           });
+        } else {
+          const chatRef = await firestore()
+            .collection('chats')
+            .add({
+              users: [userFound.uid, user.uid],
+            });
 
-        await firestore()
-          .collection('users')
-          .doc(user.uid)
-          .update({
-            chats: firestore.FieldValue.arrayUnion(chatRef.id),
+          await firestore()
+            .collection('usersInChat')
+            .add({
+              chatId: chatRef.id,
+              users: [userFound.uid, user.uid],
+            });
+
+          naigavetion.navigate('Chat', {
+            chatId: chatRef.id,
+            userToChat: userFound,
           });
-
-        await firestore()
-          .collection('users')
-          .doc(userFound.uid)
-          .update({
-            chats: firestore.FieldValue.arrayUnion(chatRef.id),
-          });
-
-        await firestore()
-          .collection('chats')
-          .doc(chatRef.id)
-          .collection('messages')
-          .doc()
-          .set({}, { merge: true });
-
-        naigavetion.navigate('Chat', {
-          chatId: chatRef.id,
-          userToChat: userFound,
-        });
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
   }, [naigavetion, user, userFound]);
@@ -172,7 +172,7 @@ export const SearchUser: React.FC = () => {
             >
               <Image
                 style={styles.userFoundProfilePhoto}
-                source={{ uri: userFound.photoURL }}
+                source={userFound.photoURL}
               />
               <Text style={styles.userFoundName}>{userFound.displayName}</Text>
               <Image

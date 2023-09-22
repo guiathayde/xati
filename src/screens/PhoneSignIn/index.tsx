@@ -62,22 +62,25 @@ export const PhoneSignIn: React.FC = () => {
         if (response) {
           const { uid } = response.user;
 
-          const user = await firestore().collection('users').doc(uid).get();
+          try {
+            const user = await firestore().doc(`users/${uid}`).get();
 
-          if (user.exists) {
-            navigation.navigate('Home');
-          } else {
-            await firestore().collection('users').doc(uid).set({
-              phoneNumber,
-            });
+            if (user.exists) {
+              navigation.navigate('Home');
+            } else {
+              await firestore().collection('users').doc(uid).set({
+                phoneNumber,
+              });
 
-            navigation.navigate('Profile', { isNewUser: true });
+              navigation.navigate('Profile', { isNewUser: true });
+            }
+          } catch (error) {
+            console.error('Error on reading user:', error);
           }
         }
       }
     } catch (error) {
-      console.log('Invalid code.');
-      console.error(error);
+      console.error('Invalid code:', error);
     }
 
     setIsLoading(false);

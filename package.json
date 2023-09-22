@@ -5,6 +5,7 @@
   "scripts": {
     "firebase": "firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data",
     "pod-install": "cd ios && NO_FLIPPER=1 USE_FRAMEWORKS=static RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
+    "android-map-localhost": "adb reverse tcp:54722 tcp:54722",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",

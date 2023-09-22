@@ -174,6 +174,7 @@ export const Profile: React.FC<ProfileProps> = ({ route }) => {
 
     if (currentUser) {
       if (newProfilePhoto) {
+        console.log('Uploading new profile photo...');
         await uploadAndUpdatePhotoURL(newProfilePhoto);
       }
 
@@ -282,6 +283,7 @@ export const Profile: React.FC<ProfileProps> = ({ route }) => {
               letterSpacing: 0,
             }}
             placeholder="Username"
+            autoCapitalize="words"
             value={newUsername ?? username}
             onChangeText={setNewUsername}
           />

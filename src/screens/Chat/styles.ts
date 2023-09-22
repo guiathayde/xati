@@ -20,11 +20,6 @@ export const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
-  messagesContainer: {
-    flex: 1,
-    width: '100%',
-    paddingTop: 16,
-  },
   userToChatName: {
     fontFamily: 'Inter-Bold',
     fontSize: 18,
@@ -34,28 +29,14 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
   },
-  messageUserToChat: {
-    backgroundColor: '#FFFFFF',
+  messagesContainer: {
+    padding: 16,
+  },
+  messageText: {
+    maxWidth: '85%',
     padding: 10,
     borderRadius: 10,
-    marginStart: 16,
-    marginEnd: 'auto',
-  },
-  messageUserToChatText: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: '#243443',
-  },
-  messageCurrentUser: {
-    backgroundColor: '#377DFF',
-    padding: 10,
-    borderRadius: 10,
-    marginStart: 'auto',
-    marginEnd: 16,
-  },
-  messageCurrentUserText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: '#FFFFFF',
   },
 });

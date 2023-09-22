@@ -18,6 +18,7 @@ export type AppNativeStackNavigatorProps = {
       uid: string;
       displayName: string;
       photoURL: string;
+      phoneNumber: string;
     };
   };
 };
@@ -31,7 +32,11 @@ export const AppRoutes: React.FC = () => (
     }}
   >
     <App.Screen name="Home" component={Home} />
-    <App.Screen name="Profile" component={Profile} />
+    <App.Screen
+      name="Profile"
+      component={Profile}
+      initialParams={{ isNewUser: true }}
+    />
     <App.Screen name="SearchUser" component={SearchUser} />
     <App.Screen name="Chat" component={Chat} />
   </App.Navigator>

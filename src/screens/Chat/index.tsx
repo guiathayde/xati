@@ -24,12 +24,13 @@ import { Input } from '../../components/Input';
 
 import { styles } from './styles';
 
+import DefaultAvatar from '../../assets/screens/Profile/default_user.png';
 import SendIcon from '../../assets/screens/Chat/ic_send.png';
 
 interface Message {
   uid: string;
   userUid: string;
-  message: string;
+  text: string;
   createdAt: string;
 }
 
@@ -67,7 +68,7 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
         .collection('messages')
         .add({
           userUid: user.uid,
-          message: newMessage,
+          text: newMessage,
           createdAt: new Date().toISOString(),
         });
 
@@ -76,48 +77,34 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
   }, [chatId, newMessage, user]);
 
   useEffect(() => {
-    firestore()
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .orderBy('createdAt', 'asc')
-      .get()
-      .then(querySnapshot => {
-        const messagesData: Message[] = [];
-
-        querySnapshot.forEach(documentSnapshot => {
-          messagesData.push({
-            uid: documentSnapshot.id,
-            userUid: documentSnapshot.data().userUid,
-            message: documentSnapshot.data().message,
-            createdAt: documentSnapshot.data().createdAt,
-          });
-        });
-
-        setMessages(messagesData);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-
     const subscriber = firestore()
       .collection('chats')
       .doc(chatId)
       .collection('messages')
       .orderBy('createdAt', 'asc')
       .onSnapshot(querySnapshot => {
-        const messagesData: Message[] = [];
-
         querySnapshot.forEach(documentSnapshot => {
-          messagesData.push({
+          const message = {
             uid: documentSnapshot.id,
             userUid: documentSnapshot.data().userUid,
-            message: documentSnapshot.data().message,
+            text: documentSnapshot.data().text,
             createdAt: documentSnapshot.data().createdAt,
+          };
+
+          setMessages(previousMessages => {
+            if (
+              previousMessages.some(
+                previousMessage => previousMessage.uid === message.uid,
+              )
+            ) {
+              return previousMessages.map(previousMessage =>
+                previousMessage.uid === message.uid ? message : previousMessage,
+              );
+            }
+
+            return [...previousMessages, message];
           });
         });
-
-        setMessages(messagesData);
       });
 
     return () => subscriber();
@@ -131,10 +118,18 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
       >
         <View style={styles.header}>
           <Back containerStyle={styles.backButton} onPress={handleBack} />
-          <Text style={styles.userToChatName}>{userToChat.displayName}</Text>
+          <Text style={styles.userToChatName} numberOfLines={1}>
+            {userToChat.displayName
+              ? userToChat.displayName
+              : userToChat.phoneNumber}
+          </Text>
           <Image
             style={styles.userToChatProfilePhoto}
-            source={{ uri: userToChat.photoURL }}
+            source={
+              userToChat.photoURL.length > 0
+                ? { uri: userToChat.photoURL }
+                : DefaultAvatar
+            }
           />
         </View>
 
@@ -153,18 +148,42 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
 
             if (item.userUid === userToChat.uid) {
               return (
-                <View style={{ ...marginTop, ...styles.messageUserToChat }}>
-                  <Text style={styles.messageUserToChatText}>
-                    {item.message}
+                <View
+                  style={{
+                    width: '100%',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <Text
+                    style={{
+                      ...marginTop,
+                      ...styles.messageText,
+                      backgroundColor: 'white',
+                      color: '#243443',
+                    }}
+                  >
+                    {item.text}
                   </Text>
                 </View>
               );
             }
 
             return (
-              <View style={{ ...marginTop, ...styles.messageCurrentUser }}>
-                <Text style={styles.messageCurrentUserText}>
-                  {item.message}
+              <View
+                style={{
+                  width: '100%',
+                  alignItems: 'flex-end',
+                }}
+              >
+                <Text
+                  style={{
+                    ...marginTop,
+                    ...styles.messageText,
+                    backgroundColor: '#377DFF',
+                    color: 'white',
+                  }}
+                >
+                  {item.text}
                 </Text>
               </View>
             );
@@ -179,6 +198,9 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
           placeholder="Message"
           returnKeyType="send"
           value={newMessage}
+          autoCapitalize="sentences"
+          multiline
+          numberOfLines={4}
           onChangeText={setNewMessage}
           onSubmitEditing={async () => {
             await handleSendMessage();
