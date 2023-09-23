@@ -599,6 +599,8 @@
 					"${PODS_ROOT}/../../node_modules/react-native/ReactCommon",
 				);
 				INFOPLIST_FILE = Xati/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Xati.;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -693,6 +695,8 @@
 					"${PODS_ROOT}/../../node_modules/react-native/ReactCommon",
 				);
 				INFOPLIST_FILE = Xati/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Xati.;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
