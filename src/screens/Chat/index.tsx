@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   FlatList,
@@ -18,6 +19,9 @@ import {
 import { AppNativeStackNavigatorProps } from '../../routes/app';
 
 import { useAuth } from '../../hooks/auth';
+import { useStatus } from '../../hooks/status';
+
+import { api } from '../../services/api';
 
 import { Back } from '../../components/Back';
 import { Input } from '../../components/Input';
@@ -46,10 +50,16 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
   const { chatId, userToChat } = route.params;
 
   const { user } = useAuth();
+  const { setCurrentChatId } = useStatus();
+  const { removeItem: removeOldNotificationMessages } = useAsyncStorage(
+    `@Xati:${userToChat.uid}:notification:messages`,
+  );
   const navigation = useNavigation();
 
+  const flatListRef = useRef<FlatList>(null);
+
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessageText, setNewMessageText] = useState('');
 
   const handleBack = useCallback(() => {
     navigation.goBack();
@@ -61,27 +71,79 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
       return;
     }
 
-    if (newMessage.trim() !== '') {
+    if (newMessageText.trim() !== '') {
+      const newMessage = {
+        userUid: user.uid,
+        text: newMessageText,
+        createdAt: new Date().toISOString(),
+      };
+
       await firestore()
         .collection('chats')
         .doc(chatId)
         .collection('messages')
-        .add({
-          userUid: user.uid,
-          text: newMessage,
-          createdAt: new Date().toISOString(),
-        });
+        .add(newMessage);
 
-      setNewMessage('');
+      setNewMessageText('');
+
+      // Verificar se o usuário a quem estou enviando a mensagem está online
+      firestore()
+        .collection('usersStatus')
+        .doc(userToChat.uid)
+        .get()
+        .then(async documentSnapshot => {
+          if (documentSnapshot != null && documentSnapshot.exists) {
+            const userStatus = documentSnapshot.data();
+
+            if (
+              userStatus &&
+              (userStatus.currentChatId == null ||
+                userStatus.currentChatId !== chatId)
+            ) {
+              firestore()
+                .collection('users')
+                .doc(userToChat.uid)
+                .collection('notifications')
+                .add({
+                  user: userToChat,
+                  newMessage,
+                });
+            }
+            // Usuário não está online
+          } else {
+            console.log('Enviando notificação para usuário offline');
+            api
+              .post('/notifications', {
+                chatId,
+                from: user.uid,
+                to: userToChat.uid,
+                newMessage,
+              })
+              .then(() => {
+                console.log('Notificação enviada com sucesso');
+              })
+              .catch(error => {
+                console.log(
+                  'Erro ao enviar notificação para usuário offline',
+                  error,
+                );
+              });
+          }
+        });
     }
-  }, [chatId, newMessage, user]);
+  }, [chatId, newMessageText, user, userToChat]);
 
   useEffect(() => {
+    setCurrentChatId(chatId);
+
+    removeOldNotificationMessages();
+
     const subscriber = firestore()
       .collection('chats')
       .doc(chatId)
       .collection('messages')
       .orderBy('createdAt', 'asc')
+      .limitToLast(25)
       .onSnapshot(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
           const message = {
@@ -107,8 +169,11 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
         });
       });
 
-    return () => subscriber();
-  }, [chatId]);
+    return () => {
+      setCurrentChatId(null);
+      subscriber();
+    };
+  }, [chatId, removeOldNotificationMessages, setCurrentChatId]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -134,6 +199,7 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
         </View>
 
         <FlatList
+          ref={flatListRef}
           data={messages}
           renderItem={({ item, index }) => {
             let marginTop: StyleProp<ViewStyle> = {};
@@ -197,11 +263,14 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
           containerStyle={{ width: '95%', marginTop: 4, marginBottom: 8 }}
           placeholder="Message"
           returnKeyType="send"
-          value={newMessage}
+          value={newMessageText}
           autoCapitalize="sentences"
           multiline
           numberOfLines={4}
-          onChangeText={setNewMessage}
+          onFocus={() => {
+            flatListRef.current?.scrollToEnd({ animated: false });
+          }}
+          onChangeText={setNewMessageText}
           onSubmitEditing={async () => {
             await handleSendMessage();
           }}

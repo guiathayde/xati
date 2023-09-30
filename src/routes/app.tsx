@@ -1,12 +1,14 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+// import { Test } from '../screens/Test';
 import { Home } from '../screens/Home';
 import { Profile } from '../screens/Profile';
 import { SearchUser } from '../screens/SearchUser';
 import { Chat } from '../screens/Chat';
 
 export type AppNativeStackNavigatorProps = {
+  // Test: undefined;
   Home: undefined;
   Profile: {
     isNewUser: boolean;
@@ -31,6 +33,7 @@ export const AppRoutes: React.FC = () => (
       headerShown: false,
     }}
   >
+    {/* <App.Screen name="Test" component={Test} /> */}
     <App.Screen name="Home" component={Home} />
     <App.Screen
       name="Profile"

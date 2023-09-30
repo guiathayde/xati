@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
+import notifee from '@notifee/react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
@@ -64,6 +65,8 @@ export const PhoneSignIn: React.FC = () => {
 
           try {
             const user = await firestore().doc(`users/${uid}`).get();
+
+            notifee.requestPermission();
 
             if (user.exists) {
               navigation.navigate('Home');
