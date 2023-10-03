@@ -1,4 +1,3 @@
-import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, {
   AndroidGroupAlertBehavior,
   AndroidImportance,
@@ -8,41 +7,25 @@ import notifee, {
 } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export async function displayNotification(
-  remoteMessage: FirebaseMessagingTypes.RemoteMessage,
-) {
-  let chatId = remoteMessage.data?.chatId;
-  let userUid = remoteMessage.data?.userUid;
-  let displayName = remoteMessage.data?.displayName;
-  let photoURL = remoteMessage.data?.photoURL;
-  let phoneNumber = remoteMessage.data?.phoneNumber;
-  let messageText = remoteMessage.data?.messageText;
-  let messageCreatedAt = remoteMessage.data?.messageCreatedAt;
+interface Notification {
+  chatId: string;
+  userUid: string;
+  displayName: string;
+  photoURL: string;
+  phoneNumber: string;
+  messageText: string;
+  messageCreatedAt: string;
+}
 
-  if (
-    !chatId ||
-    !userUid ||
-    !displayName ||
-    !photoURL ||
-    !phoneNumber ||
-    !messageText ||
-    !messageCreatedAt
-  ) {
-    return;
-  }
-
-  if (
-    typeof chatId !== 'string' ||
-    typeof userUid !== 'string' ||
-    typeof displayName !== 'string' ||
-    typeof photoURL !== 'string' ||
-    typeof phoneNumber !== 'string' ||
-    typeof messageText !== 'string' ||
-    typeof messageCreatedAt !== 'string'
-  ) {
-    return;
-  }
-
+export async function displayNotification({
+  chatId,
+  userUid,
+  displayName,
+  photoURL,
+  phoneNumber,
+  messageText,
+  messageCreatedAt,
+}: Notification) {
   const currentSettings = await notifee.getNotificationSettings();
   if (currentSettings.authorizationStatus === AuthorizationStatus.DENIED) {
     return;
@@ -108,6 +91,16 @@ export async function displayNotification(
           icon: photoURL,
         },
         messages,
+      },
+    },
+    ios: {
+      categoryId: 'chat',
+      summaryArgument: displayName,
+      foregroundPresentationOptions: {
+        badge: true,
+        sound: true,
+        banner: true,
+        list: true,
       },
     },
   });

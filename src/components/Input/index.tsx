@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import {
   StyleProp,
   ViewStyle,
@@ -20,27 +20,33 @@ interface InputProps extends TextInputProps {
   iconCallback?: () => void;
 }
 
-export const Input: React.FC<InputProps> = ({
-  containerStyle = {} as object,
-  inputStyle = {} as object,
-  iconSource,
-  iconCallback,
-  ...props
-}) => {
-  return (
-    <View style={{ ...styles.container, ...containerStyle }}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={{ ...styles.input, ...inputStyle }}
-          placeholderTextColor="#AAB0B7"
-          {...props}
-        />
+export const Input = forwardRef<TextInput, InputProps>(
+  (
+    {
+      containerStyle = {} as object,
+      inputStyle = {} as object,
+      iconSource,
+      iconCallback,
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <View style={{ ...styles.container, ...containerStyle }}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            ref={ref}
+            style={{ ...styles.input, ...inputStyle }}
+            placeholderTextColor="#AAB0B7"
+            {...props}
+          />
+        </View>
+        {iconSource && (
+          <TouchableOpacity style={styles.iconContainer} onPress={iconCallback}>
+            <Image style={styles.iconInput} source={iconSource} />
+          </TouchableOpacity>
+        )}
       </View>
-      {iconSource && (
-        <TouchableOpacity style={styles.iconContainer} onPress={iconCallback}>
-          <Image style={styles.iconInput} source={iconSource} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-};
+    );
+  },
+);

@@ -74,7 +74,7 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
     if (newMessageText.trim() !== '') {
       const newMessage = {
         userUid: user.uid,
-        text: newMessageText,
+        text: newMessageText.trim(),
         createdAt: new Date().toISOString(),
       };
 
@@ -87,49 +87,54 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
       setNewMessageText('');
 
       // Verificar se o usuário a quem estou enviando a mensagem está online
-      firestore()
+      const usersStatusDoc = await firestore()
         .collection('usersStatus')
         .doc(userToChat.uid)
-        .get()
-        .then(async documentSnapshot => {
-          if (documentSnapshot != null && documentSnapshot.exists) {
-            const userStatus = documentSnapshot.data();
+        .get();
 
-            if (
-              userStatus &&
-              (userStatus.currentChatId == null ||
-                userStatus.currentChatId !== chatId)
-            ) {
-              firestore()
-                .collection('users')
-                .doc(userToChat.uid)
-                .collection('notifications')
-                .add({
-                  user: userToChat,
-                  newMessage,
-                });
-            }
-            // Usuário não está online
-          } else {
-            console.log('Enviando notificação para usuário offline');
-            api
-              .post('/notifications', {
-                chatId,
-                from: user.uid,
-                to: userToChat.uid,
-                newMessage,
-              })
-              .then(() => {
-                console.log('Notificação enviada com sucesso');
-              })
-              .catch(error => {
-                console.log(
-                  'Erro ao enviar notificação para usuário offline',
-                  error,
-                );
-              });
-          }
-        });
+      if (usersStatusDoc != null && usersStatusDoc.exists) {
+        const userStatus = usersStatusDoc.data();
+
+        if (
+          userStatus &&
+          (userStatus.currentChatId == null ||
+            userStatus.currentChatId !== chatId)
+        ) {
+          console.log('Enviando notificação para usuário online');
+          firestore()
+            .collection('users')
+            .doc(userToChat.uid)
+            .collection('notifications')
+            .add({
+              chatId,
+              user: {
+                uid: user.uid,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                phoneNumber: user.phoneNumber,
+              },
+              newMessage,
+            });
+        }
+      } else {
+        console.log('Enviando notificação para usuário offline');
+        api
+          .post('/notifications', {
+            chatId,
+            from: user.uid,
+            to: userToChat.uid,
+            newMessage,
+          })
+          .then(() => {
+            console.log('Notificação enviada com sucesso');
+          })
+          .catch(error => {
+            console.log(
+              'Erro ao enviar notificação para usuário offline',
+              error,
+            );
+          });
+      }
     }
   }, [chatId, newMessageText, user, userToChat]);
 
@@ -200,6 +205,7 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
 
         <FlatList
           ref={flatListRef}
+          inverted
           data={messages}
           renderItem={({ item, index }) => {
             let marginTop: StyleProp<ViewStyle> = {};
@@ -271,13 +277,9 @@ export const Chat: React.FC<ChatProps> = ({ route }) => {
             flatListRef.current?.scrollToEnd({ animated: false });
           }}
           onChangeText={setNewMessageText}
-          onSubmitEditing={async () => {
-            await handleSendMessage();
-          }}
+          onSubmitEditing={handleSendMessage}
           iconSource={SendIcon}
-          iconCallback={async () => {
-            await handleSendMessage();
-          }}
+          iconCallback={handleSendMessage}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

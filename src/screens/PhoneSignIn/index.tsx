@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
   Text,
+  TextInput,
 } from 'react-native';
 import { formatIncompletePhoneNumber, isValidNumber } from 'libphonenumber-js';
 
@@ -23,6 +24,8 @@ import { styles } from './styles';
 
 export const PhoneSignIn: React.FC = () => {
   const navigation = useNavigation();
+
+  const inputCodeRef = useRef<TextInput>(null);
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -41,18 +44,22 @@ export const PhoneSignIn: React.FC = () => {
     navigation.goBack();
   }, [confirm, navigation]);
 
-  const handleSignInWithPhoneNumber = useCallback(async (phone: string) => {
-    setIsLoading(true);
+  const handleSignInWithPhoneNumber = useCallback(
+    async (phone: string) => {
+      setIsLoading(true);
 
-    if (isValidNumber(phone)) {
-      const confirmation = await auth().signInWithPhoneNumber(phone);
-      setConfirm(confirmation);
-    } else {
-      Alert.alert('Invalid phone number.');
-    }
+      if (isValidNumber(phone)) {
+        const confirmation = await auth().signInWithPhoneNumber(phone);
+        setConfirm(confirmation);
+        inputCodeRef.current?.focus();
+      } else {
+        Alert.alert('Invalid phone number.');
+      }
 
-    setIsLoading(false);
-  }, []);
+      setIsLoading(false);
+    },
+    [inputCodeRef],
+  );
 
   const handleConfirmCode = useCallback(async () => {
     setIsLoading(true);
@@ -162,6 +169,7 @@ export const PhoneSignIn: React.FC = () => {
           </Text>
 
           <Input
+            ref={inputCodeRef}
             containerStyle={styles.inputContainer}
             inputStyle={{
               textAlign: 'center',

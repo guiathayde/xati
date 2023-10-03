@@ -1,4 +1,4 @@
-package com.guiathayde.xati; // Altere para o seu pacote
+package com.xati;
 
 import android.content.Intent;
 import android.os.Bundle;

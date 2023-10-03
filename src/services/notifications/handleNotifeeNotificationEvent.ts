@@ -8,7 +8,7 @@ interface UserToChat {
   phoneNumber: string;
 }
 
-export async function handleBackgroundEvent({ type, detail }: Event) {
+export async function handleNotifeeNotificationEvent({ type, detail }: Event) {
   if (type === EventType.PRESS) {
     const chatId = detail.notification?.data?.chatId as string | undefined;
     const userToChat = detail.notification?.data?.userToChat as

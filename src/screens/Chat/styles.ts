@@ -30,6 +30,7 @@ export const styles = StyleSheet.create({
     borderRadius: 25,
   },
   messagesContainer: {
+    flexDirection: 'column-reverse',
     padding: 16,
   },
   messageText: {
